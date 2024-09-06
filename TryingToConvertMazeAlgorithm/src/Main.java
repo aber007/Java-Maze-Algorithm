@@ -59,6 +59,10 @@ public class Main {
         System.out.println(targetPanel);
         targetPanel.setBackground(Color.BLUE);
 
+        int[] currentLocation = {0,0};
+
+    }
+    public void moveRight(String currentLocation){
 
     }
 }
