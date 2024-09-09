@@ -40,15 +40,18 @@ public class Main {
 
         mainFrame.add(gridPanel);
         mainFrame.setVisible(true);
+        int verticalGridSize = 780/ycord;
+        int horizontalGridSize = 780/xcord;
 
         // Create the grids
         for (int i = 0; i < xcord; i++) {
             for (int j = 0; j < ycord; j++) {
                 String key = String.format("%03d"+","+"%03d", i, j);
-
+                String[] keySplit = key.split(",");
                 // Create small panels to fill the grid
                 JPanel smallGridPanel = new JPanel();
-                smallGridPanel.setBackground(Color.BLACK);  // Set the background color to gray
+                smallGridPanel.setLayout(null);
+                smallGridPanel.setBackground(Color.GRAY);  // Set the background color to gray
 
                 // Store the JPanel in the HashMap with the key
                 grids.put(key, smallGridPanel);
@@ -57,14 +60,23 @@ public class Main {
                 gridPanel.add(smallGridPanel);
 
                 // Add Horizontal and Vertical Walls to each smallGridPanel
-                int smallGridSizeWall = smallGridPanel.getPreferredSize().width;
-                JPanel GridWallVertical = new JPanel();
-                GridWallVertical.setBackground(Color.GRAY);
-                gridwalls.put((key+"x"),GridWallVertical);
-                
-                smallGridPanel.add(GridWallVertical);
 
-
+                if (!keySplit[1].equals((String.format("%03d", xcord - 1)))){
+                    JPanel gridWallVertical = new JPanel();
+                    int wallWidth = (int) Math.round(horizontalGridSize * 0.1);
+                    gridWallVertical.setBounds(horizontalGridSize - wallWidth, 0, wallWidth, horizontalGridSize);
+                    gridWallVertical.setBackground(Color.BLACK);
+                    gridwalls.put((key + "x"), gridWallVertical);
+                    smallGridPanel.add(gridWallVertical);
+                }
+                if (!keySplit[0].equals((String.format("%03d", ycord - 1)))) {
+                    JPanel gridWallHorizontal = new JPanel();
+                    int wallWidth = (int) Math.round(horizontalGridSize * 0.1);
+                    gridWallHorizontal.setBounds(0, verticalGridSize - wallWidth, verticalGridSize, wallWidth);
+                    gridWallHorizontal.setBackground(Color.BLACK);
+                    gridwalls.put((key + "x"), gridWallHorizontal);
+                    smallGridPanel.add(gridWallHorizontal);
+                }
             }
         }
         //check if all grids exist
@@ -116,7 +128,6 @@ public class Main {
         }
         String xkey = String.format("%03d", currentLocation[0]);
         String ykey = String.format("%03d", currentLocation[1]);
-        String currentLocationKey = xkey + "," + ykey;
         update(lastLocation,currentLocation, grids);
 
 
@@ -131,7 +142,6 @@ public class Main {
         }
         String xkey = String.format("%03d", currentLocation[0]);
         String ykey = String.format("%03d", currentLocation[1]);
-        String currentLocationKey = xkey + "," + ykey;
         update(lastLocation,currentLocation, grids);
 
 
@@ -146,7 +156,6 @@ public class Main {
         }
         String xkey = String.format("%03d", currentLocation[0]);
         String ykey = String.format("%03d", currentLocation[1]);
-        String currentLocationKey = xkey + "," + ykey;
         update(lastLocation,currentLocation, grids);
 
     }
@@ -159,7 +168,6 @@ public class Main {
         }
         String xkey = String.format("%03d", currentLocation[0]);
         String ykey = String.format("%03d", currentLocation[1]);
-        String currentLocationKey = xkey + "," + ykey;
         update(lastLocation,currentLocation, grids);
 
     }
@@ -171,6 +179,7 @@ public class Main {
 
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
+        removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids);
 
         //removeWallIfGoingOver();
         //checkIfNearbyWallsExists();
@@ -182,6 +191,10 @@ public class Main {
         oldTargetPanel.setBackground(Color.GRAY);
         JPanel targetPanel = grids.get(currentLocationKey);
         targetPanel.setBackground(Color.BLUE);
+    }
+    public static void removeWallIfGoingOver(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids){
+            System.out.println("REMOVEING WALLES");
+
     }
 }
 
