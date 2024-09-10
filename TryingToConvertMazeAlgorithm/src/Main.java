@@ -174,6 +174,8 @@ public class Main {
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
         removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridWalls, gridHasAllWalls);
+        checkPossibleDirections(currentLocation, grids, currentLocationKey);
+
         if (debug){
             for (String key : grids.keySet()) {
                 System.out.println(key);
@@ -185,10 +187,12 @@ public class Main {
                 }
             }
         }
-
         //checkIfNearbyWallsExists();
         //checkIfNearbyGridsHasAllWalls();
 
+    }
+    public static void checkPossibleDirections(int[] currentLocation, HashMap<String, JPanel> grids, String currentLocationKey) {
+        
     }
     public static void updateMarker(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids) {
         JPanel oldTargetPanel = grids.get(lastLocationKey);
