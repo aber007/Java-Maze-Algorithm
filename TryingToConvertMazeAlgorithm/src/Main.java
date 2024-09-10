@@ -174,7 +174,7 @@ public class Main {
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
         removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridWalls, gridHasAllWalls);
-        if (!debug){
+        if (debug){
             for (String key : grids.keySet()) {
                 System.out.println(key);
                 JPanel targetPanel = grids.get(key);
