@@ -1,5 +1,5 @@
 import java.util.HashMap;
-import java.util.Scanner;
+import java.util.Objects;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,18 +9,17 @@ import java.util.Arrays;
 public class Main {
     public static void main(String[] args) {
         //Create a grid
-        int xcord = 10;
-        int ycord = 10;
+        int xCord = 10;
+        int yCord = 10;
         HashMap<String, JPanel> grids = new HashMap<>();
-        HashMap<String, JPanel> gridwalls = new HashMap<>();
-        Scanner input = new Scanner(System.in);
-        for (int i = 0; i<xcord; i++){
-            for (int j = 0; j<ycord; j++){
-                String xcordFormatted = String.format("%03d", i);
-                String ycordFormatted = String.format("%03d", j);
-                grids.put(xcordFormatted+","+ycordFormatted, null);
-                gridwalls.put(xcordFormatted+","+ycordFormatted + "y", null);
-                gridwalls.put(xcordFormatted+","+ycordFormatted + "x", null);
+        HashMap<String, JPanel> gridWalls = new HashMap<>();
+        for (int i = 0; i<xCord; i++){
+            for (int j = 0; j<yCord; j++){
+                String xCordFormatted = String.format("%03d", i);
+                String yCordFormatted = String.format("%03d", j);
+                grids.put(xCordFormatted+","+yCordFormatted, null);
+                gridWalls.put(xCordFormatted+","+yCordFormatted + "y", null);
+                gridWalls.put(xCordFormatted+","+yCordFormatted + "x", null);
             }
         }
         //create main window
@@ -35,17 +34,17 @@ public class Main {
         JPanel gridPanel = new JPanel();
         gridPanel.setBounds(0, 0, 780, 780);
         gridPanel.setBackground(Color.WHITE);
-        System.out.println("gridsize:" + xcord +","+ ycord);
-        gridPanel.setLayout(new GridLayout(xcord, ycord, 0, 0));  // 5x5 grid with 2px gaps
+        System.out.println("gridSize:" + xCord +","+ yCord);
+        gridPanel.setLayout(new GridLayout(xCord, yCord, 0, 0));  // 5x5 grid with 2px gaps
 
         mainFrame.add(gridPanel);
         mainFrame.setVisible(true);
-        int verticalGridSize = 780/ycord;
-        int horizontalGridSize = 780/xcord;
+        int verticalGridSize = 780/yCord;
+        int horizontalGridSize = 780/xCord;
 
         // Create the grids
-        for (int i = 0; i < xcord; i++) {
-            for (int j = 0; j < ycord; j++) {
+        for (int i = 0; i < xCord; i++) {
+            for (int j = 0; j < yCord; j++) {
                 String key = String.format("%03d"+","+"%03d", i, j);
                 String[] keySplit = key.split(",");
                 // Create small panels to fill the grid
@@ -61,20 +60,20 @@ public class Main {
 
                 // Add Horizontal and Vertical Walls to each smallGridPanel
 
-                if (!keySplit[1].equals((String.format("%03d", xcord - 1)))){
+                if (!keySplit[1].equals((String.format("%03d", xCord - 1)))){
                     JPanel gridWallVertical = new JPanel();
                     int wallWidth = (int) Math.round(horizontalGridSize * 0.1);
                     gridWallVertical.setBounds(horizontalGridSize - wallWidth, 0, wallWidth, horizontalGridSize);
                     gridWallVertical.setBackground(Color.BLACK);
-                    gridwalls.put((key + "x"), gridWallVertical);
+                    gridWalls.put((key + "x"), gridWallVertical);
                     smallGridPanel.add(gridWallVertical);
                 }
-                if (!keySplit[0].equals((String.format("%03d", ycord - 1)))) {
+                if (!keySplit[0].equals((String.format("%03d", yCord - 1)))) {
                     JPanel gridWallHorizontal = new JPanel();
-                    int wallWidth = (int) Math.round(horizontalGridSize * 0.1);
-                    gridWallHorizontal.setBounds(0, verticalGridSize - wallWidth, verticalGridSize, wallWidth);
+                    int wallHeight = (int) Math.round(horizontalGridSize * 0.1);
+                    gridWallHorizontal.setBounds(0, verticalGridSize - wallHeight, verticalGridSize, wallHeight);
                     gridWallHorizontal.setBackground(Color.BLACK);
-                    gridwalls.put((key + "y"), gridWallHorizontal);
+                    gridWalls.put((key + "y"), gridWallHorizontal);
                     smallGridPanel.add(gridWallHorizontal);
                 }
             }
@@ -92,16 +91,16 @@ public class Main {
                 int keyCode = e.getKeyCode();
                 switch (keyCode) {
                     case KeyEvent.VK_UP:
-                        moveNorth(currentLocation, grids, gridwalls);
+                        moveNorth(currentLocation, grids, gridWalls);
                         break;
                     case KeyEvent.VK_DOWN:
-                        moveSouth(currentLocation, ycord, grids, gridwalls);
+                        moveSouth(currentLocation, yCord, grids, gridWalls);
                         break;
                     case KeyEvent.VK_LEFT:
-                        moveWest(currentLocation, grids, gridwalls);
+                        moveWest(currentLocation, grids, gridWalls);
                         break;
                     case KeyEvent.VK_RIGHT:
-                        moveEast(currentLocation, xcord, grids, gridwalls);
+                        moveEast(currentLocation, xCord, grids, gridWalls);
                         break;
                 }
             }
@@ -120,50 +119,50 @@ public class Main {
         mainFrame.requestFocusInWindow();
     }
 
-    public static void moveEast(int[] currentLocation, int xcord ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
+    public static void moveEast(int[] currentLocation, int xCord ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls) {
         System.out.println("E");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
-        if (currentLocation[1] < (xcord-1)) {
+        if (currentLocation[1] < (xCord-1)) {
             currentLocation[1]++;
         }
-        update(lastLocation,currentLocation, grids, gridwalls);
+        update(lastLocation,currentLocation, grids, gridWalls);
 
 
 
     }
 
-    public static void moveWest(int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
+    public static void moveWest(int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls) {
         System.out.println("W");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         if (currentLocation[1] > 0){
             currentLocation[1]--;
         }
-        update(lastLocation,currentLocation, grids, gridwalls);
+        update(lastLocation,currentLocation, grids, gridWalls);
 
 
 
     }
 
-    public static void moveNorth(int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
+    public static void moveNorth(int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls) {
         System.out.println("N");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         if (currentLocation[0] > 0){
             currentLocation[0]--;
         }
-        update(lastLocation,currentLocation, grids, gridwalls);
+        update(lastLocation,currentLocation, grids, gridWalls);
 
     }
 
-    public static void moveSouth(int[] currentLocation, int ycord, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
+    public static void moveSouth(int[] currentLocation, int yCord, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls) {
         System.out.println("S");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
-        if (currentLocation[0] < (ycord-1)){
+        if (currentLocation[0] < (yCord-1)){
             currentLocation[0]++;
         }
-        update(lastLocation,currentLocation, grids, gridwalls);
+        update(lastLocation,currentLocation, grids, gridWalls);
 
     }
-    public static void update(int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
+    public static void update(int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls) {
         // Initial variable creation
         String currentLocationKey = String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1]);
         String lastLocationKey = String.format("%03d", lastLocation[0]) + "," + String.format("%03d", lastLocation[1]);
@@ -171,7 +170,7 @@ public class Main {
 
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
-        removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridwalls);
+        removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridWalls);
 
         //removeWallIfGoingOver();
         //checkIfNearbyWallsExists();
@@ -184,27 +183,39 @@ public class Main {
         JPanel targetPanel = grids.get(currentLocationKey);
         targetPanel.setBackground(Color.BLUE);
     }
-    public static void removeWallIfGoingOver(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids, int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> gridwalls) {
-        System.out.println("REMOVEING WALLES");
-        if (currentLocationKey != lastLocationKey) {
+    public static void removeWallIfGoingOver(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids, int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> gridWalls) {
+        System.out.println("Removing Walls");
+        if (!Objects.equals(currentLocationKey, lastLocationKey)) {
             if (currentLocation[0] == lastLocation[0]) {
+                JPanel targetGrid;
+                JPanel targetPanel;
                 if (currentLocation[1] > lastLocation[1]) {
-                    System.out.println(gridwalls);
-                    System.out.println(lastLocationKey + "x");
-                    JPanel targetpanel = grids.get(lastLocationKey + "x");
-                    targetpanel.setBackground(Color.GRAY);
+                    targetGrid = grids.get(lastLocationKey);
+                    targetPanel = gridWalls.get(lastLocationKey + "x");
                 }
                 else {
+                    targetGrid = grids.get(currentLocationKey);
+                    targetPanel = gridWalls.get(currentLocationKey + "x");
 
                 }
+                targetGrid.remove(targetPanel);
+                targetGrid.invalidate();
+                targetGrid.validate();
 
             } else if (currentLocation[1] == lastLocation[1]){
+                JPanel targetGrid;
+                JPanel targetPanel;
                 if (currentLocation[0] > lastLocation[0]){
-
+                    targetGrid = grids.get(lastLocationKey);
+                    targetPanel = gridWalls.get(lastLocationKey + "y");
                 }
                 else{
-
+                    targetGrid = grids.get(currentLocationKey);
+                    targetPanel = gridWalls.get(currentLocationKey + "y");
                 }
+                targetGrid.remove(targetPanel);
+                targetGrid.invalidate();
+                targetGrid.validate();
             }
         }
     }
