@@ -19,8 +19,8 @@ public class Main {
                 String xcordFormatted = String.format("%03d", i);
                 String ycordFormatted = String.format("%03d", j);
                 grids.put(xcordFormatted+","+ycordFormatted, null);
-                gridwalls.put(xcordFormatted+","+ycordFormatted + ",y", null);
-                gridwalls.put(xcordFormatted+","+ycordFormatted + ",x", null);
+                gridwalls.put(xcordFormatted+","+ycordFormatted + "y", null);
+                gridwalls.put(xcordFormatted+","+ycordFormatted + "x", null);
             }
         }
         //create main window
@@ -74,7 +74,7 @@ public class Main {
                     int wallWidth = (int) Math.round(horizontalGridSize * 0.1);
                     gridWallHorizontal.setBounds(0, verticalGridSize - wallWidth, verticalGridSize, wallWidth);
                     gridWallHorizontal.setBackground(Color.BLACK);
-                    gridwalls.put((key + "x"), gridWallHorizontal);
+                    gridwalls.put((key + "y"), gridWallHorizontal);
                     smallGridPanel.add(gridWallHorizontal);
                 }
             }
@@ -92,16 +92,16 @@ public class Main {
                 int keyCode = e.getKeyCode();
                 switch (keyCode) {
                     case KeyEvent.VK_UP:
-                        moveNorth(currentLocation, grids);
+                        moveNorth(currentLocation, grids, gridwalls);
                         break;
                     case KeyEvent.VK_DOWN:
-                        moveSouth(currentLocation, ycord, grids);
+                        moveSouth(currentLocation, ycord, grids, gridwalls);
                         break;
                     case KeyEvent.VK_LEFT:
-                        moveWest(currentLocation, grids);
+                        moveWest(currentLocation, grids, gridwalls);
                         break;
                     case KeyEvent.VK_RIGHT:
-                        moveEast(currentLocation, xcord, grids);
+                        moveEast(currentLocation, xcord, grids, gridwalls);
                         break;
                 }
             }
@@ -120,58 +120,50 @@ public class Main {
         mainFrame.requestFocusInWindow();
     }
 
-    public static void moveEast(int[] currentLocation, int xcord ,HashMap<String, JPanel> grids) {
+    public static void moveEast(int[] currentLocation, int xcord ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
         System.out.println("E");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         if (currentLocation[1] < (xcord-1)) {
             currentLocation[1]++;
         }
-        String xkey = String.format("%03d", currentLocation[0]);
-        String ykey = String.format("%03d", currentLocation[1]);
-        update(lastLocation,currentLocation, grids);
+        update(lastLocation,currentLocation, grids, gridwalls);
 
 
 
     }
 
-    public static void moveWest(int[] currentLocation, HashMap<String, JPanel> grids){
+    public static void moveWest(int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
         System.out.println("W");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         if (currentLocation[1] > 0){
             currentLocation[1]--;
         }
-        String xkey = String.format("%03d", currentLocation[0]);
-        String ykey = String.format("%03d", currentLocation[1]);
-        update(lastLocation,currentLocation, grids);
+        update(lastLocation,currentLocation, grids, gridwalls);
 
 
 
     }
 
-    public static void moveNorth(int[] currentLocation, HashMap<String, JPanel> grids){
+    public static void moveNorth(int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
         System.out.println("N");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         if (currentLocation[0] > 0){
             currentLocation[0]--;
         }
-        String xkey = String.format("%03d", currentLocation[0]);
-        String ykey = String.format("%03d", currentLocation[1]);
-        update(lastLocation,currentLocation, grids);
+        update(lastLocation,currentLocation, grids, gridwalls);
 
     }
 
-    public static void moveSouth(int[] currentLocation, int ycord, HashMap<String, JPanel> grids){
+    public static void moveSouth(int[] currentLocation, int ycord, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
         System.out.println("S");
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         if (currentLocation[0] < (ycord-1)){
             currentLocation[0]++;
         }
-        String xkey = String.format("%03d", currentLocation[0]);
-        String ykey = String.format("%03d", currentLocation[1]);
-        update(lastLocation,currentLocation, grids);
+        update(lastLocation,currentLocation, grids, gridwalls);
 
     }
-    public static void update(int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> grids) {
+    public static void update(int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> grids, HashMap<String, JPanel> gridwalls) {
         // Initial variable creation
         String currentLocationKey = String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1]);
         String lastLocationKey = String.format("%03d", lastLocation[0]) + "," + String.format("%03d", lastLocation[1]);
@@ -179,7 +171,7 @@ public class Main {
 
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
-        removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids);
+        removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridwalls);
 
         //removeWallIfGoingOver();
         //checkIfNearbyWallsExists();
@@ -192,9 +184,29 @@ public class Main {
         JPanel targetPanel = grids.get(currentLocationKey);
         targetPanel.setBackground(Color.BLUE);
     }
-    public static void removeWallIfGoingOver(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids){
-            System.out.println("REMOVEING WALLES");
+    public static void removeWallIfGoingOver(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids, int[] lastLocation, int[] currentLocation, HashMap<String, JPanel> gridwalls) {
+        System.out.println("REMOVEING WALLES");
+        if (currentLocationKey != lastLocationKey) {
+            if (currentLocation[0] == lastLocation[0]) {
+                if (currentLocation[1] > lastLocation[1]) {
+                    System.out.println(gridwalls);
+                    System.out.println(lastLocationKey + "x");
+                    JPanel targetpanel = grids.get(lastLocationKey + "x");
+                    targetpanel.setBackground(Color.GRAY);
+                }
+                else {
 
+                }
+
+            } else if (currentLocation[1] == lastLocation[1]){
+                if (currentLocation[0] > lastLocation[0]){
+
+                }
+                else{
+
+                }
+            }
+        }
     }
 }
 
