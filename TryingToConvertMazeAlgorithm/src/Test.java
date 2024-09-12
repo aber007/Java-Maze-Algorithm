@@ -4,7 +4,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.*;
 
-public class MainTwo {
+public class Test {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
@@ -76,7 +76,7 @@ public class MainTwo {
                     case KeyEvent.VK_E:  // Toggle camera centering
                         toggleCameraCentering();
                         break;
-                    case KeyEvent.VK_S:  // Start algorithm (press 'S' to start the maze generation algorithm)
+                    case KeyEvent.VK_SPACE:  // Start algorithm (press 'S' to start the maze generation algorithm)
                         startAlgorithm(currentLocation, gridHasAllWalls);
                         break;
                 }

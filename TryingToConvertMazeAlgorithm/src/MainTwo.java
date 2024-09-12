@@ -2,13 +2,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.sql.SQLOutput;
+import java.util.ArrayList;
 
 public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static int xCord = 1000;  // Number of rows
-    private static int yCord = 1000;  // Number of columns
+    private static int xCord = 10;  // Number of rows
+    private static int yCord = 10;  // Number of columns
     private static boolean[][] horizontalWalls; // Tracks horizontal walls
     private static boolean[][] verticalWalls;   // Tracks vertical walls
     private static int[] currentLocation = {0, 0}; // Player's starting location
@@ -16,8 +18,13 @@ public class MainTwo {
     private static int cameraY = 0;  // Camera Y offset
     private static int cameraSpeed = 10;  // Speed of camera movement
     private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
+    private static ArrayList locationsToAvoid = new ArrayList();
+    private static ArrayList backTrack = new ArrayList();
 
     public static void main(String[] args) {
+        // Add values to lists
+        locationsToAvoid.add("0.0");
+
         // Initialize wall data structures
         horizontalWalls = new boolean[xCord][yCord];
         verticalWalls = new boolean[xCord][yCord];
@@ -86,6 +93,10 @@ public class MainTwo {
                     case KeyEvent.VK_E:  // Toggle camera centering
                         toggleCameraCentering();
                         break;
+                    case KeyEvent.VK_SPACE:
+                        startAlgorithm();
+                        break;
+
                 }
                 gridPanel.repaint(); // Repaint the grid after moving or zooming
             }
@@ -111,6 +122,7 @@ public class MainTwo {
                 horizontalWalls[currentLocation[0] - 1][currentLocation[1]] = false;
             }
             currentLocation[0]--;
+            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
         }
     }
 
@@ -121,6 +133,7 @@ public class MainTwo {
                 horizontalWalls[currentLocation[0]][currentLocation[1]] = false;
             }
             currentLocation[0]++;
+            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
         }
     }
 
@@ -131,6 +144,7 @@ public class MainTwo {
                 verticalWalls[currentLocation[0]][currentLocation[1] - 1] = false;
             }
             currentLocation[1]--;
+            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
         }
     }
 
@@ -141,6 +155,7 @@ public class MainTwo {
                 verticalWalls[currentLocation[0]][currentLocation[1]] = false;
             }
             currentLocation[1]++;
+            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
         }
     }
 
@@ -185,6 +200,35 @@ public class MainTwo {
         centerCameraOnPlayer = !centerCameraOnPlayer;
         System.out.println("Camera centering is now " + (centerCameraOnPlayer ? "ON" : "OFF"));
     }
+
+    // Main Algorithm
+    public static void startAlgorithm() {
+        //check nearby cells if they exist and have not been visited
+        String currentLocationStr = currentLocation[0] +"."+ currentLocation[1];
+        System.out.println("CURRENT LOCATION " + currentLocationStr);
+        System.out.println(locationsToAvoid.toString());
+        if (currentLocation[0] != 0){
+            if (!locationsToAvoid.contains(currentLocation[0]-1 + "." + currentLocation[1])) {
+                System.out.println("CAN GO NORTH");
+            }
+        }
+        if (currentLocation[0] != yCord - 1) {
+            if (!locationsToAvoid.contains(currentLocation[0]+1 + "." + currentLocation[1])) {
+                System.out.println("CAN GO SOUTH");
+            }
+        }
+        if (currentLocation[1] != 0 ){
+            if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1]-1))) {
+                System.out.println("CAN GO WEST");
+            }
+        }
+        if (currentLocation[1] != xCord - 1) {
+            if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1]+1))) {
+                System.out.println("CAN GO EAST");
+            }
+        }
+    }
+
 
     // Custom JPanel to render the grid
     static class GridPanel extends JPanel {
