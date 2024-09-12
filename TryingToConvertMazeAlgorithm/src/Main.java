@@ -1,20 +1,22 @@
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.*;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Main {
     private static final boolean debug = false;
     public static String[] possibleDirections = new String[4];
     public static boolean algorithmStatus = false;
     public static ArrayList<String> backtrackLocation = new ArrayList<>();
+    public static boolean backTrackStatus = false;
     public static void main(String[] args) {
         //Create a grid
-        int xCord = 10;
-        int yCord = 10;
+        int xCord = 150;
+        int yCord = 150;
         HashMap<String, JPanel> grids = new HashMap<>();
         HashMap<String, JPanel> gridWalls = new HashMap<>();
         HashMap<String, String> gridHasAllWalls = new HashMap<>();
@@ -32,7 +34,7 @@ public class Main {
         JFrame mainFrame = new JFrame();
         mainFrame.setTitle("Maze Algorithm");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setSize(1200,900);
+        mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
         gridHasAllWalls.put("000,000", "FALSE");
         mainFrame.setLayout(null);
 
@@ -47,6 +49,8 @@ public class Main {
         JButton startButton = new JButton("Start");
         startButton.setBounds(850, 50, 100, 50);
         startButton.setBackground(Color.GREEN);
+
+        // Define the toggle minimize action
 
 
         mainFrame.add(gridPanel);
@@ -74,7 +78,7 @@ public class Main {
 
                 if (!keySplit[1].equals((String.format("%03d", xCord - 1)))){
                     JPanel gridWallVertical = new JPanel();
-                    int wallWidth = (int) Math.round(horizontalGridSize * 0.1);
+                    int wallWidth = (int) Math.round(horizontalGridSize * 0.2);
                     gridWallVertical.setBounds(horizontalGridSize - wallWidth, 0, wallWidth, horizontalGridSize);
                     gridWallVertical.setBackground(Color.BLACK);
                     gridWalls.put((key + "x"), gridWallVertical);
@@ -82,7 +86,7 @@ public class Main {
                 }
                 if (!keySplit[0].equals((String.format("%03d", yCord - 1)))) {
                     JPanel gridWallHorizontal = new JPanel();
-                    int wallHeight = (int) Math.round(horizontalGridSize * 0.1);
+                    int wallHeight = (int) Math.round(horizontalGridSize * 0.2);
                     gridWallHorizontal.setBounds(0, verticalGridSize - wallHeight, verticalGridSize, wallHeight);
                     gridWallHorizontal.setBackground(Color.BLACK);
                     gridWalls.put((key + "y"), gridWallHorizontal);
@@ -97,11 +101,7 @@ public class Main {
         targetPanel.setBackground(Color.BLUE);
 
         int[] currentLocation = {0,0};
-        startButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                startAlgorithm(currentLocation, grids, gridWalls, gridHasAllWalls, yCord, xCord, startButton);
-            }
-        });
+        startButton.addActionListener(_ -> startAlgorithm(currentLocation, grids, gridWalls, gridHasAllWalls, yCord, xCord, startButton));
         mainFrame.add(startButton);
         mainFrame.addKeyListener(new KeyListener() {
             @Override
@@ -189,7 +189,7 @@ public class Main {
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
         removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridWalls, gridHasAllWalls);
-        checkPossibleDirections(currentLocation, grids, currentLocationKey, gridHasAllWalls);
+        checkPossibleDirections(currentLocation, gridHasAllWalls);
 
         if (debug){
             for (String key : grids.keySet()) {
@@ -205,7 +205,7 @@ public class Main {
         //checkIfNearbyGridsHasAllWalls();
 
     }
-    public static void checkPossibleDirections(int[] currentLocation, HashMap<String, JPanel> grids, String currentLocationKey, HashMap<String, String> gridHasAllWalls) {
+    public static void checkPossibleDirections(int[] currentLocation, HashMap<String, String> gridHasAllWalls) {
         System.out.println("CHECK POSSIBLE DIRECTIONS");
         System.out.println(Arrays.toString(currentLocation));
 
@@ -298,12 +298,17 @@ public class Main {
         }
         int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
         update(lastLocation, currentLocation, grids, gridWalls, gridHasAllWalls);
-        algorithm(currentLocation, grids, gridWalls, gridHasAllWalls, yCord, xCord);
+        // Start the algorithm in a separate thread
+        Thread algorithmThread = new Thread(() -> algorithm(currentLocation, grids, gridWalls, gridHasAllWalls, yCord, xCord, lastLocation));
+
+        algorithmThread.start(); // Start the thread
     }
-    public static void algorithm(int[] currentLocation ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls, HashMap<String, String> gridHasAllWalls, int yCord, int xCord) {
+    public static void algorithm(int[] currentLocation ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls, HashMap<String, String> gridHasAllWalls, int yCord, int xCord, int[] lastLocation) {
         while (algorithmStatus) {
             String key = String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1]);
+            if (!backTrackStatus){
             backtrackLocation.add(key);
+            }
             ArrayList<String> possibleDirectionsList = new ArrayList<>();
             for (String direction : possibleDirections) {
                 if (direction != null) {
@@ -314,6 +319,7 @@ public class Main {
                 Random rand = new Random();
                 int randIndex = rand.nextInt(possibleDirectionsList.size());
                 String directionToMove = possibleDirectionsList.get(randIndex);
+                backTrackStatus = false;
                 switch (directionToMove) {
                     case "NORTH":
                         moveNorth(currentLocation, grids, gridWalls, gridHasAllWalls);
@@ -327,14 +333,24 @@ public class Main {
                     case "EAST":
                         moveEast(currentLocation, xCord, grids, gridWalls, gridHasAllWalls);
                         break;
+
                 }
             } catch (Exception e){
-                while (true) {
-                    System.out.println("Start Backtrack");
-                    System.out.println(backtrackLocation);
-                    backtrackLocation.removeLast();
-                    break;
-                }
+                backTrackStatus = true;
+                System.out.println("Start Backtrack");
+                System.out.println(backtrackLocation);
+                backtrackLocation.removeLast();
+
+                String currentLocationKey = String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1]);
+                JPanel targetPanel = grids.get(currentLocationKey);
+                System.out.println(targetPanel);
+                targetPanel.setBackground(Color.GRAY);
+
+                int backTrackX = Integer.parseInt(backtrackLocation.getLast().split(",")[0]);
+                int backTrackY = Integer.parseInt(backtrackLocation.getLast().split(",")[1]);
+                currentLocation = new int[]{backTrackX, backTrackY};
+
+                update(lastLocation, currentLocation, grids, gridWalls, gridHasAllWalls);
             }
         }
     }

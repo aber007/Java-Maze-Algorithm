@@ -5,10 +5,10 @@ import java.awt.event.KeyListener;
 
 public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
-    private static final int MIN_CELL_SIZE = 10; // Minimum cell size
+    private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static int xCord = 500;  // Number of rows
-    private static int yCord = 500;  // Number of columns
+    private static int xCord = 1000;  // Number of rows
+    private static int yCord = 1000;  // Number of columns
     private static boolean[][] horizontalWalls; // Tracks horizontal walls
     private static boolean[][] verticalWalls;   // Tracks vertical walls
     private static int[] currentLocation = {0, 0}; // Player's starting location
