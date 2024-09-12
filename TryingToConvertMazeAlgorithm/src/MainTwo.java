@@ -12,6 +12,10 @@ public class MainTwo {
     private static boolean[][] horizontalWalls; // Tracks horizontal walls
     private static boolean[][] verticalWalls;   // Tracks vertical walls
     private static int[] currentLocation = {0, 0}; // Player's starting location
+    private static int cameraX = 0;  // Camera X offset
+    private static int cameraY = 0;  // Camera Y offset
+    private static int cameraSpeed = 10;  // Speed of camera movement
+    private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
 
     public static void main(String[] args) {
         // Initialize wall data structures
@@ -35,7 +39,7 @@ public class MainTwo {
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Set to fullscreen
-        mainFrame.setSize(900,1200);
+        mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 
         // Create custom grid panel
         GridPanel gridPanel = new GridPanel();
@@ -67,6 +71,21 @@ public class MainTwo {
                     case KeyEvent.VK_MINUS:  // Zoom out (- key)
                         zoomOut();
                         break;
+                    case KeyEvent.VK_W:  // Move camera up
+                        if (!centerCameraOnPlayer) moveCameraUp();
+                        break;
+                    case KeyEvent.VK_A:  // Move camera left
+                        if (!centerCameraOnPlayer) moveCameraLeft();
+                        break;
+                    case KeyEvent.VK_S:  // Move camera down
+                        if (!centerCameraOnPlayer) moveCameraDown();
+                        break;
+                    case KeyEvent.VK_D:  // Move camera right
+                        if (!centerCameraOnPlayer) moveCameraRight();
+                        break;
+                    case KeyEvent.VK_E:  // Toggle camera centering
+                        toggleCameraCentering();
+                        break;
                 }
                 gridPanel.repaint(); // Repaint the grid after moving or zooming
             }
@@ -84,6 +103,7 @@ public class MainTwo {
         mainFrame.requestFocusInWindow();
     }
 
+    // Player movement
     public static void moveNorth() {
         if (currentLocation[0] > 0) {
             // Remove horizontal wall if exists
@@ -124,6 +144,7 @@ public class MainTwo {
         }
     }
 
+    // Zoom functionality
     public static void zoomIn() {
         if (CELL_SIZE < MAX_CELL_SIZE) {
             CELL_SIZE += 5;  // Increase the cell size for zoom in
@@ -138,6 +159,33 @@ public class MainTwo {
         }
     }
 
+    // Camera movement
+    public static void moveCameraUp() {
+        cameraY = Math.max(0, cameraY - cameraSpeed);  // Move the camera up
+        System.out.println("Camera moved up. New cameraY: " + cameraY);
+    }
+
+    public static void moveCameraDown() {
+        cameraY = Math.min(yCord - 1, cameraY + cameraSpeed);  // Move the camera down
+        System.out.println("Camera moved down. New cameraY: " + cameraY);
+    }
+
+    public static void moveCameraLeft() {
+        cameraX = Math.max(0, cameraX - cameraSpeed);  // Move the camera left
+        System.out.println("Camera moved left. New cameraX: " + cameraX);
+    }
+
+    public static void moveCameraRight() {
+        cameraX = Math.min(xCord - 1, cameraX + cameraSpeed);  // Move the camera right
+        System.out.println("Camera moved right. New cameraX: " + cameraX);
+    }
+
+    // Toggle camera centering on player
+    public static void toggleCameraCentering() {
+        centerCameraOnPlayer = !centerCameraOnPlayer;
+        System.out.println("Camera centering is now " + (centerCameraOnPlayer ? "ON" : "OFF"));
+    }
+
     // Custom JPanel to render the grid
     static class GridPanel extends JPanel {
         @Override
@@ -145,35 +193,45 @@ public class MainTwo {
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
 
-            // Draw grid cells and walls
+            // Update camera position if centering on player
+            if (centerCameraOnPlayer) {
+                cameraX = currentLocation[1] - getWidth() / (2 * CELL_SIZE);
+                cameraY = currentLocation[0] - getHeight() / (2 * CELL_SIZE);
+                cameraX = Math.max(0, Math.min(xCord - 1, cameraX));  // Clamp camera position
+                cameraY = Math.max(0, Math.min(yCord - 1, cameraY));  // Clamp camera position
+            }
+
+            // Draw grid cells and walls with camera offset
             for (int i = 0; i < xCord; i++) {
                 for (int j = 0; j < yCord; j++) {
-                    // Draw the cell background
-                    g2d.setColor(Color.GRAY);
-                    g2d.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                    int screenX = (j - cameraX) * CELL_SIZE;
+                    int screenY = (i - cameraY) * CELL_SIZE;
 
-                    // Draw the player
-                    if (i == currentLocation[0] && j == currentLocation[1]) {
-                        g2d.setColor(Color.BLUE);
-                        g2d.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-                    }
+                    // Only draw visible cells
+                    if (screenX + CELL_SIZE > 0 && screenY + CELL_SIZE > 0 &&
+                            screenX < getWidth() && screenY < getHeight()) {
 
-                    // Draw walls
-                    g2d.setColor(Color.BLACK);
-                    if (i < xCord - 1 && verticalWalls[i][j]) {
-                        // Vertical wall
-                        g2d.fillRect((j + 1) * CELL_SIZE - 2, i * CELL_SIZE, 2, CELL_SIZE);
-                    } else if (i == xCord - 1) {
-                        // Right edge of the last column
-                        g2d.fillRect(j * CELL_SIZE + CELL_SIZE - 2, i * CELL_SIZE, 2, CELL_SIZE);
-                    }
+                        // Draw the cell background
+                        g2d.setColor(Color.GRAY);
+                        g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
 
-                    if (j < yCord - 1 && horizontalWalls[i][j]) {
-                        // Horizontal wall
-                        g2d.fillRect(j * CELL_SIZE, (i + 1) * CELL_SIZE - 2, CELL_SIZE, 2);
-                    } else if (j == yCord - 1) {
-                        // Bottom edge of the last row
-                        g2d.fillRect(j * CELL_SIZE, i * CELL_SIZE + CELL_SIZE - 2, CELL_SIZE, 2);
+                        // Draw the player
+                        if (i == currentLocation[0] && j == currentLocation[1]) {
+                            g2d.setColor(Color.BLUE);
+                            g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                        }
+
+                        // Draw walls
+                        g2d.setColor(Color.BLACK);
+                        if (i < xCord - 1 && verticalWalls[i][j]) {
+                            // Vertical wall
+                            g2d.fillRect(screenX + CELL_SIZE - 2, screenY, 2, CELL_SIZE);
+                        }
+
+                        if (j < yCord - 1 && horizontalWalls[i][j]) {
+                            // Horizontal wall
+                            g2d.fillRect(screenX, screenY + CELL_SIZE - 2, CELL_SIZE, 2);
+                        }
                     }
                 }
             }
