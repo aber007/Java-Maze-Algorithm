@@ -1,13 +1,16 @@
-import java.util.HashMap;
-import java.util.Objects;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.*;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.*;
-import java.util.Arrays;
 
 public class Main {
-    private static boolean debug = true;
+    private static final boolean debug = false;
+    public static String[] possibleDirections = new String[4];
+    public static boolean algorithmStatus = false;
+    public static ArrayList<String> backtrackLocation = new ArrayList<>();
     public static void main(String[] args) {
         //Create a grid
         int xCord = 10;
@@ -39,6 +42,12 @@ public class Main {
         gridPanel.setBackground(Color.WHITE);
         System.out.println("gridSize:" + xCord +","+ yCord);
         gridPanel.setLayout(new GridLayout(xCord, yCord, 0, 0));  // 5x5 grid with 2px gaps
+
+        //Create buttons
+        JButton startButton = new JButton("Start");
+        startButton.setBounds(850, 50, 100, 50);
+        startButton.setBackground(Color.GREEN);
+
 
         mainFrame.add(gridPanel);
         mainFrame.setVisible(true);
@@ -88,6 +97,12 @@ public class Main {
         targetPanel.setBackground(Color.BLUE);
 
         int[] currentLocation = {0,0};
+        startButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                startAlgorithm(currentLocation, grids, gridWalls, gridHasAllWalls, yCord, xCord, startButton);
+            }
+        });
+        mainFrame.add(startButton);
         mainFrame.addKeyListener(new KeyListener() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -174,11 +189,10 @@ public class Main {
         //functions
         updateMarker(lastLocationKey, currentLocationKey, grids);
         removeWallIfGoingOver(lastLocationKey, currentLocationKey, grids, lastLocation, currentLocation, gridWalls, gridHasAllWalls);
-        checkPossibleDirections(currentLocation, grids, currentLocationKey);
+        checkPossibleDirections(currentLocation, grids, currentLocationKey, gridHasAllWalls);
 
         if (debug){
             for (String key : grids.keySet()) {
-                System.out.println(key);
                 JPanel targetPanel = grids.get(key);
                 if (Objects.equals(gridHasAllWalls.get(key), "FALSE")) {
                     targetPanel.setBackground(Color.RED);
@@ -191,8 +205,38 @@ public class Main {
         //checkIfNearbyGridsHasAllWalls();
 
     }
-    public static void checkPossibleDirections(int[] currentLocation, HashMap<String, JPanel> grids, String currentLocationKey) {
-        
+    public static void checkPossibleDirections(int[] currentLocation, HashMap<String, JPanel> grids, String currentLocationKey, HashMap<String, String> gridHasAllWalls) {
+        System.out.println("CHECK POSSIBLE DIRECTIONS");
+        System.out.println(Arrays.toString(currentLocation));
+
+        Arrays.fill(possibleDirections, null);
+
+        try {
+            if (gridHasAllWalls.get(String.format("%03d", currentLocation[0] - 1) + "," + String.format("%03d", currentLocation[1])).equals("TRUE")) {
+                System.out.println("POSSIBLE NORTH");
+                possibleDirections[0] = "NORTH";
+            }
+        } catch (Exception _){}
+        try {
+            if (gridHasAllWalls.get(String.format("%03d", currentLocation[0] + 1) + "," + String.format("%03d", currentLocation[1])).equals("TRUE")) {
+                System.out.println("POSSIBLE SOUTH");
+                possibleDirections[1] = "SOUTH";
+            }
+        } catch (Exception _){}
+        try {
+            if (gridHasAllWalls.get(String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1] + 1)).equals("TRUE")) {
+                System.out.println("POSSIBLE EAST");
+                possibleDirections[2] = "EAST";
+            }
+        } catch (Exception _){}
+        try {
+            if (gridHasAllWalls.get(String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1] - 1)).equals("TRUE")) {
+                System.out.println("POSSIBLE WEST");
+                possibleDirections[3] = "WEST";
+            }
+        } catch (Exception _){}
+        System.out.println(Arrays.toString(possibleDirections));
+
     }
     public static void updateMarker(String lastLocationKey, String currentLocationKey, HashMap<String, JPanel> grids) {
         JPanel oldTargetPanel = grids.get(lastLocationKey);
@@ -237,6 +281,60 @@ public class Main {
                 targetGrid.validate();
                 gridHasAllWalls.put(lastLocationKey, "FALSE");
                 gridHasAllWalls.put(currentLocationKey, "FALSE");
+                System.out.println("END OF REMOVING WALLS");
+            }
+        }
+    }
+    public static void startAlgorithm(int[] currentLocation ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls, HashMap<String, String> gridHasAllWalls, int yCord, int xCord, JButton button) {
+        algorithmStatus = !algorithmStatus;
+        System.out.println(algorithmStatus);
+        if (algorithmStatus){
+            button.setBackground(Color.RED);
+            button.setText("Stop");
+        }
+        else{
+            button.setBackground(Color.GREEN);
+            button.setText("Start");
+        }
+        int[] lastLocation = Arrays.copyOf(currentLocation, currentLocation.length);
+        update(lastLocation, currentLocation, grids, gridWalls, gridHasAllWalls);
+        algorithm(currentLocation, grids, gridWalls, gridHasAllWalls, yCord, xCord);
+    }
+    public static void algorithm(int[] currentLocation ,HashMap<String, JPanel> grids, HashMap<String, JPanel> gridWalls, HashMap<String, String> gridHasAllWalls, int yCord, int xCord) {
+        while (algorithmStatus) {
+            String key = String.format("%03d", currentLocation[0]) + "," + String.format("%03d", currentLocation[1]);
+            backtrackLocation.add(key);
+            ArrayList<String> possibleDirectionsList = new ArrayList<>();
+            for (String direction : possibleDirections) {
+                if (direction != null) {
+                    possibleDirectionsList.add(direction);
+                }
+            }
+            try{
+                Random rand = new Random();
+                int randIndex = rand.nextInt(possibleDirectionsList.size());
+                String directionToMove = possibleDirectionsList.get(randIndex);
+                switch (directionToMove) {
+                    case "NORTH":
+                        moveNorth(currentLocation, grids, gridWalls, gridHasAllWalls);
+                        break;
+                    case "SOUTH":
+                        moveSouth(currentLocation, yCord, grids, gridWalls, gridHasAllWalls);
+                        break;
+                    case "WEST":
+                        moveWest(currentLocation, grids, gridWalls, gridHasAllWalls);
+                        break;
+                    case "EAST":
+                        moveEast(currentLocation, xCord, grids, gridWalls, gridHasAllWalls);
+                        break;
+                }
+            } catch (Exception e){
+                while (true) {
+                    System.out.println("Start Backtrack");
+                    System.out.println(backtrackLocation);
+                    backtrackLocation.removeLast();
+                    break;
+                }
             }
         }
     }
