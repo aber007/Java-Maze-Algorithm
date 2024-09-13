@@ -2,8 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
 
 public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
@@ -19,8 +20,10 @@ public class MainTwo {
     private static int cameraSpeed = 10;  // Speed of camera movement
     private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
     private static ArrayList locationsToAvoid = new ArrayList();
-    private static ArrayList backTrack = new ArrayList();
-    private static ArrayList possibleMoves = new ArrayList();
+    private static ArrayList<String> backTrack = new ArrayList();
+    private static ArrayList<String> possibleMoves = new ArrayList();
+    private static boolean algorithmStatus = false;
+    public static boolean backTrackStatus = false;
 
     public static void main(String[] args) {
         // Add values to lists
@@ -205,29 +208,74 @@ public class MainTwo {
     // Main Algorithm
     public static void startAlgorithm() {
         //check nearby cells if they exist and have not been visited
-        String currentLocationStr = currentLocation[0] +"."+ currentLocation[1];
-        System.out.println("CURRENT LOCATION " + currentLocationStr);
-        System.out.println(locationsToAvoid.toString());
-        if (currentLocation[0] != 0){
-            if (!locationsToAvoid.contains(currentLocation[0]-1 + "." + currentLocation[1])) {
-                System.out.println("CAN GO NORTH");
+        algorithmStatus = !algorithmStatus;
+        Thread algorithmThread = new Thread(MainTwo::algorithm);
+        algorithmThread.start(); // Start the thread
 
+    }
+    public static void algorithm() {
+        //while (algorithmStatus) {
+            String currentLocationStr = currentLocation[0] + "." + currentLocation[1];
+            possibleMoves.clear();
+            if (currentLocation[0] != 0) {
+                if (!locationsToAvoid.contains(currentLocation[0] - 1 + "." + currentLocation[1])) {
+                    possibleMoves.add("NORTH");
+
+                }
             }
-        }
-        if (currentLocation[0] != yCord - 1) {
-            if (!locationsToAvoid.contains(currentLocation[0]+1 + "." + currentLocation[1])) {
-                System.out.println("CAN GO SOUTH");
+            if (currentLocation[0] != yCord - 1) {
+                if (!locationsToAvoid.contains(currentLocation[0] + 1 + "." + currentLocation[1])) {
+                    possibleMoves.add("SOUTH");
+                }
             }
-        }
-        if (currentLocation[1] != 0 ){
-            if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1]-1))) {
-                System.out.println("CAN GO WEST");
+            if (currentLocation[1] != 0) {
+                if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1] - 1))) {
+                    possibleMoves.add("WEST");
+                }
             }
-        }
-        if (currentLocation[1] != xCord - 1) {
-            if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1]+1))) {
-                System.out.println("CAN GO EAST");
+            if (currentLocation[1] != xCord - 1) {
+                if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1] + 1))) {
+                    possibleMoves.add("EAST");
+                }
             }
+            if (!backTrackStatus){
+                System.out.println("Backtrack Added");
+                backTrack.add(currentLocation[0] + "." + currentLocation[1]);
+            }
+            try {
+                System.out.println("Possible moves: " + possibleMoves);
+                Random rand = new Random();
+                int randIndex = rand.nextInt(possibleMoves.size());
+                String directionToMove = possibleMoves.get(randIndex);
+                backTrackStatus = false;
+                switch (directionToMove) {
+                    case "NORTH":
+                        moveNorth();
+                        break;
+                    case "SOUTH":
+                        moveSouth();
+                        break;
+                    case "WEST":
+                        moveWest();
+                        break;
+                    case "EAST":
+                        moveEast();
+                        break;
+
+                }
+            } catch (Exception e) {
+                System.out.println("BACKTRACK");
+                backTrackStatus = true;
+                backTrack.removeLast();
+                System.out.println(backTrack);
+                String lastVar = backTrack.getLast();
+                System.out.println(lastVar);
+                int xVal = Integer.parseInt(lastVar.split(".")[0]);
+                int yVal = Integer.parseInt(lastVar.split(".")[1]);
+                currentLocation = new int[]{xVal, yVal};
+                System.out.println(Arrays.toString(currentLocation));
+
+            //}
         }
     }
 
@@ -280,6 +328,7 @@ public class MainTwo {
                         if (i < xCord - 1 && horizontalWalls[i][j]) {
                             g2d.fillRect(screenX, screenY + CELL_SIZE-2, CELL_SIZE, 2);
                         }
+
                     }
                 }
             }
