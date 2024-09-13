@@ -20,6 +20,7 @@ public class MainTwo {
     private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
     private static ArrayList locationsToAvoid = new ArrayList();
     private static ArrayList backTrack = new ArrayList();
+    private static ArrayList possibleMoves = new ArrayList();
 
     public static void main(String[] args) {
         // Add values to lists
@@ -31,11 +32,11 @@ public class MainTwo {
 
         // Create walls for testing
         for (int i = 0; i < xCord; i++) {
-            for (int j = 0; j < yCord - 1; j++) {
+            for (int j = 0; j < yCord; j++) {
                 horizontalWalls[i][j] = true;  // Add horizontal walls between cells
             }
         }
-        for (int i = 0; i < xCord - 1; i++) {
+        for (int i = 0; i < xCord; i++) {
             for (int j = 0; j < yCord; j++) {
                 verticalWalls[i][j] = true;  // Add vertical walls between cells
             }
@@ -210,6 +211,7 @@ public class MainTwo {
         if (currentLocation[0] != 0){
             if (!locationsToAvoid.contains(currentLocation[0]-1 + "." + currentLocation[1])) {
                 System.out.println("CAN GO NORTH");
+
             }
         }
         if (currentLocation[0] != yCord - 1) {
@@ -248,6 +250,7 @@ public class MainTwo {
             // Draw grid cells and walls with camera offset
             for (int i = 0; i < xCord; i++) {
                 for (int j = 0; j < yCord; j++) {
+
                     int screenX = (j - cameraX) * CELL_SIZE;
                     int screenY = (i - cameraY) * CELL_SIZE;
 
@@ -267,14 +270,15 @@ public class MainTwo {
 
                         // Draw walls
                         g2d.setColor(Color.BLACK);
-                        if (i < xCord - 1 && verticalWalls[i][j]) {
-                            // Vertical wall
-                            g2d.fillRect(screenX + CELL_SIZE - 2, screenY, 2, CELL_SIZE);
+
+                        // Vertical walls (including rightmost vertical wall at the far right of the grid)
+                        if (j < yCord - 1 && verticalWalls[i][j]) {
+                            g2d.fillRect(screenX + CELL_SIZE-2, screenY, 2, CELL_SIZE);
                         }
 
-                        if (j < yCord - 1 && horizontalWalls[i][j]) {
-                            // Horizontal wall
-                            g2d.fillRect(screenX, screenY + CELL_SIZE - 2, CELL_SIZE, 2);
+                        // Horizontal walls (including bottom horizontal wall at the bottom of the grid)
+                        if (i < xCord - 1 && horizontalWalls[i][j]) {
+                            g2d.fillRect(screenX, screenY + CELL_SIZE-2, CELL_SIZE, 2);
                         }
                     }
                 }
