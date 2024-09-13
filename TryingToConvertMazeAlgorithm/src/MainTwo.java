@@ -7,14 +7,18 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class MainTwo {
+    //User inputs
+    private static boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static int xCord = 1000;  // Number of rows
-    private static int yCord = 1000;  // Number of columns
+    private static int xCord = 100;  // Number of rows
+    private static int yCord = 100;  // Number of columns
+    private static int[] currentLocation = {0, 0}; // Player's starting location
+
+    // Do not change
     private static boolean[][] horizontalWalls; // Tracks horizontal walls
     private static boolean[][] verticalWalls;   // Tracks vertical walls
-    private static int[] currentLocation = {0, 0}; // Player's starting location
     private static int cameraX = 0;  // Camera X offset
     private static int cameraY = 0;  // Camera Y offset
     private static int cameraSpeed = 10;  // Speed of camera movement
@@ -25,6 +29,8 @@ public class MainTwo {
     private static boolean algorithmStatus = false;
     public static boolean backTrackStatus = false;
     public static GridPanel gridPanel = new GridPanel();
+
+
 
     public static void main(String[] args) {
         // Add values to lists
@@ -167,14 +173,14 @@ public class MainTwo {
     // Zoom functionality
     public static void zoomIn() {
         if (CELL_SIZE < MAX_CELL_SIZE) {
-            CELL_SIZE += 5;  // Increase the cell size for zoom in
+            CELL_SIZE += 1;  // Increase the cell size for zoom in
             System.out.println("Zooming in: New cell size = " + CELL_SIZE);
         }
     }
 
     public static void zoomOut() {
         if (CELL_SIZE > MIN_CELL_SIZE) {
-            CELL_SIZE -= 5;  // Decrease the cell size for zoom out
+            CELL_SIZE -= 1;  // Decrease the cell size for zoom out
             System.out.println("Zooming out: New cell size = " + CELL_SIZE);
         }
     }
@@ -216,7 +222,9 @@ public class MainTwo {
     }
     public static void algorithm() {
         while (algorithmStatus) {
-            SwingUtilities.invokeLater(gridPanel::repaint);
+            if (liveUpdate) {
+                SwingUtilities.invokeLater(gridPanel::repaint);
+            }
             String currentLocationStr = currentLocation[0] + "." + currentLocation[1];
             possibleMoves.clear();
             if (currentLocation[0] != 0) {
@@ -241,7 +249,6 @@ public class MainTwo {
                 }
             }
             if (!backTrackStatus){
-                System.out.println("Backtrack Added");
                 backTrack.add(currentLocation[0] + "." + currentLocation[1]);
             }
             if (possibleMoves.isEmpty()) {
@@ -253,7 +260,7 @@ public class MainTwo {
                 backTrackStatus = true;
                 // Trigger backtrack here
                 if (!backTrack.isEmpty()) {
-                    String lastVar = backTrack.remove(backTrack.size() - 1);
+                    String lastVar = backTrack.removeLast();
                     System.out.println("Backtracking to: " + lastVar);
                     int xVal = Integer.parseInt(lastVar.split("\\.")[0]);
                     int yVal = Integer.parseInt(lastVar.split("\\.")[1]);
