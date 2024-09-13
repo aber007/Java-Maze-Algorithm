@@ -10,8 +10,8 @@ public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static int xCord = 10;  // Number of rows
-    private static int yCord = 10;  // Number of columns
+    private static int xCord = 1000;  // Number of rows
+    private static int yCord = 1000;  // Number of columns
     private static boolean[][] horizontalWalls; // Tracks horizontal walls
     private static boolean[][] verticalWalls;   // Tracks vertical walls
     private static int[] currentLocation = {0, 0}; // Player's starting location
@@ -24,6 +24,7 @@ public class MainTwo {
     private static ArrayList<String> possibleMoves = new ArrayList();
     private static boolean algorithmStatus = false;
     public static boolean backTrackStatus = false;
+    public static GridPanel gridPanel = new GridPanel();
 
     public static void main(String[] args) {
         // Add values to lists
@@ -53,7 +54,7 @@ public class MainTwo {
         mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 
         // Create custom grid panel
-        GridPanel gridPanel = new GridPanel();
+
         JScrollPane scrollPane = new JScrollPane(gridPanel);
         mainFrame.add(scrollPane);
 
@@ -214,7 +215,8 @@ public class MainTwo {
 
     }
     public static void algorithm() {
-        //while (algorithmStatus) {
+        while (algorithmStatus) {
+            SwingUtilities.invokeLater(gridPanel::repaint);
             String currentLocationStr = currentLocation[0] + "." + currentLocation[1];
             possibleMoves.clear();
             if (currentLocation[0] != 0) {
@@ -242,8 +244,23 @@ public class MainTwo {
                 System.out.println("Backtrack Added");
                 backTrack.add(currentLocation[0] + "." + currentLocation[1]);
             }
-            try {
-                System.out.println("Possible moves: " + possibleMoves);
+            if (possibleMoves.isEmpty()) {
+                System.out.println("No possible moves, initiating backtrack.");
+                if (currentLocation[0] == 0 && currentLocation[1] == 0 ) {
+                    System.out.println("Maze Finished");
+                    algorithmStatus = false;
+                };
+                backTrackStatus = true;
+                // Trigger backtrack here
+                if (!backTrack.isEmpty()) {
+                    String lastVar = backTrack.remove(backTrack.size() - 1);
+                    System.out.println("Backtracking to: " + lastVar);
+                    int xVal = Integer.parseInt(lastVar.split("\\.")[0]);
+                    int yVal = Integer.parseInt(lastVar.split("\\.")[1]);
+                    currentLocation = new int[]{xVal, yVal};
+                    System.out.println("New current location: " + Arrays.toString(currentLocation));
+                }
+            } else {
                 Random rand = new Random();
                 int randIndex = rand.nextInt(possibleMoves.size());
                 String directionToMove = possibleMoves.get(randIndex);
@@ -261,21 +278,8 @@ public class MainTwo {
                     case "EAST":
                         moveEast();
                         break;
-
                 }
-            } catch (Exception e) {
-                System.out.println("BACKTRACK");
-                backTrackStatus = true;
-                backTrack.removeLast();
-                System.out.println(backTrack);
-                String lastVar = backTrack.getLast();
-                System.out.println(lastVar);
-                int xVal = Integer.parseInt(lastVar.split(".")[0]);
-                int yVal = Integer.parseInt(lastVar.split(".")[1]);
-                currentLocation = new int[]{xVal, yVal};
-                System.out.println(Arrays.toString(currentLocation));
-
-            //}
+            }
         }
     }
 
