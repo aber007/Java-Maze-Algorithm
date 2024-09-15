@@ -4,16 +4,17 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Random;
 
 public class MainTwo {
     //User inputs
-    private static boolean liveUpdate = true; // If the maze should update in real time
+    private static final boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static int xCord = 100;  // Number of rows
-    private static int yCord = 100;  // Number of columns
+    private static final int xCord = 1000;  // Number of rows
+    private static final int yCord = 1000;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
     // Do not change
@@ -21,11 +22,11 @@ public class MainTwo {
     private static boolean[][] verticalWalls;   // Tracks vertical walls
     private static int cameraX = 0;  // Camera X offset
     private static int cameraY = 0;  // Camera Y offset
-    private static int cameraSpeed = 10;  // Speed of camera movement
+    private static final int cameraSpeed = 10;  // Speed of camera movement
     private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
-    private static ArrayList locationsToAvoid = new ArrayList();
-    private static ArrayList<String> backTrack = new ArrayList();
-    private static ArrayList<String> possibleMoves = new ArrayList();
+    private static final HashMap<String, Boolean> locationsToAvoid = new HashMap<>();
+    private static final ArrayList<String> backTrack = new ArrayList<>();
+    private static final ArrayList<String> possibleMoves = new ArrayList<>();
     private static boolean algorithmStatus = false;
     public static boolean backTrackStatus = false;
     public static GridPanel gridPanel = new GridPanel();
@@ -34,7 +35,14 @@ public class MainTwo {
 
     public static void main(String[] args) {
         // Add values to lists
-        locationsToAvoid.add("0.0");
+
+        for (int i = 0; i < xCord; i++) {
+            for (int j = 0; j < yCord; j++) {
+                locationsToAvoid.put(i + "." + j, true);
+            }
+        }
+        locationsToAvoid.put("0.0", false);
+        System.out.println(locationsToAvoid);
 
         // Initialize wall data structures
         horizontalWalls = new boolean[xCord][yCord];
@@ -133,7 +141,7 @@ public class MainTwo {
                 horizontalWalls[currentLocation[0] - 1][currentLocation[1]] = false;
             }
             currentLocation[0]--;
-            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
+            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
         }
     }
 
@@ -144,7 +152,7 @@ public class MainTwo {
                 horizontalWalls[currentLocation[0]][currentLocation[1]] = false;
             }
             currentLocation[0]++;
-            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
+            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
         }
     }
 
@@ -155,7 +163,7 @@ public class MainTwo {
                 verticalWalls[currentLocation[0]][currentLocation[1] - 1] = false;
             }
             currentLocation[1]--;
-            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
+            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
         }
     }
 
@@ -166,7 +174,7 @@ public class MainTwo {
                 verticalWalls[currentLocation[0]][currentLocation[1]] = false;
             }
             currentLocation[1]++;
-            locationsToAvoid.add(currentLocation[0] + "." + currentLocation[1]);
+            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
         }
     }
 
@@ -227,27 +235,36 @@ public class MainTwo {
             }
             String currentLocationStr = currentLocation[0] + "." + currentLocation[1];
             possibleMoves.clear();
-            if (currentLocation[0] != 0) {
-                if (!locationsToAvoid.contains(currentLocation[0] - 1 + "." + currentLocation[1])) {
-                    possibleMoves.add("NORTH");
-
+            System.out.println(Arrays.toString(currentLocation));
+            System.out.println(currentLocationStr);
+            try {
+                if (currentLocation[0] != 0) {
+                    if (locationsToAvoid.get(currentLocation[0] - 1 + "." + currentLocation[1])) {
+                        possibleMoves.add("NORTH");
+                    }
                 }
-            }
-            if (currentLocation[0] != yCord - 1) {
-                if (!locationsToAvoid.contains(currentLocation[0] + 1 + "." + currentLocation[1])) {
-                    possibleMoves.add("SOUTH");
+            } catch (Exception _) {}
+            try {
+                if (currentLocation[0] != yCord - 1) {
+                    if (locationsToAvoid.get(currentLocation[0] + 1 + "." + currentLocation[1])) {
+                        possibleMoves.add("SOUTH");
+                    }
                 }
-            }
-            if (currentLocation[1] != 0) {
-                if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1] - 1))) {
-                    possibleMoves.add("WEST");
+            }catch (Exception _) {}
+            try {
+                if (currentLocation[1] != 0) {
+                    if (locationsToAvoid.get(currentLocation[0] + "." + (currentLocation[1] - 1))) {
+                        possibleMoves.add("WEST");
+                    }
                 }
-            }
-            if (currentLocation[1] != xCord - 1) {
-                if (!locationsToAvoid.contains(currentLocation[0] + "." + (currentLocation[1] + 1))) {
-                    possibleMoves.add("EAST");
+            } catch (Exception _) {}
+            try {
+                if (currentLocation[1] != xCord - 1) {
+                    if (locationsToAvoid.get(currentLocation[0] + "." + (currentLocation[1] + 1))) {
+                        possibleMoves.add("EAST");
+                    }
                 }
-            }
+            } catch (Exception _) {}
             if (!backTrackStatus){
                 backTrack.add(currentLocation[0] + "." + currentLocation[1]);
             }
@@ -256,7 +273,7 @@ public class MainTwo {
                 if (currentLocation[0] == 0 && currentLocation[1] == 0 ) {
                     System.out.println("Maze Finished");
                     algorithmStatus = false;
-                };
+                }
                 backTrackStatus = true;
                 // Trigger backtrack here
                 if (!backTrack.isEmpty()) {
