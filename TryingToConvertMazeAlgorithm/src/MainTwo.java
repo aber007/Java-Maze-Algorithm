@@ -13,8 +13,8 @@ public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static final int xCord = 1000;  // Number of rows
-    private static final int yCord = 1000;  // Number of columns
+    private static final int xCord = 5000;  // Number of rows
+    private static final int yCord = 5000;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
     // Do not change
@@ -30,6 +30,7 @@ public class MainTwo {
     private static boolean algorithmStatus = false;
     public static boolean backTrackStatus = false;
     public static GridPanel gridPanel = new GridPanel();
+    public static long start;
 
 
 
@@ -226,17 +227,20 @@ public class MainTwo {
         algorithmStatus = !algorithmStatus;
         Thread algorithmThread = new Thread(MainTwo::algorithm);
         algorithmThread.start(); // Start the thread
-
+        start = System.currentTimeMillis();
+        Thread timer = new Thread(MainTwo::timerThread);
+        timer.start();
     }
+    public static void timerThread() {
+        start = System.currentTimeMillis();
+    }
+
     public static void algorithm() {
         while (algorithmStatus) {
             if (liveUpdate) {
                 SwingUtilities.invokeLater(gridPanel::repaint);
             }
-            String currentLocationStr = currentLocation[0] + "." + currentLocation[1];
             possibleMoves.clear();
-            System.out.println(Arrays.toString(currentLocation));
-            System.out.println(currentLocationStr);
             try {
                 if (currentLocation[0] != 0) {
                     if (locationsToAvoid.get(currentLocation[0] - 1 + "." + currentLocation[1])) {
@@ -272,17 +276,17 @@ public class MainTwo {
                 System.out.println("No possible moves, initiating backtrack.");
                 if (currentLocation[0] == 0 && currentLocation[1] == 0 ) {
                     System.out.println("Maze Finished");
+                    long time = System.currentTimeMillis() - start;
+                    System.out.println("Time taken: " + time + " ms / " + time / 1000 + " seconds");
                     algorithmStatus = false;
                 }
                 backTrackStatus = true;
                 // Trigger backtrack here
                 if (!backTrack.isEmpty()) {
                     String lastVar = backTrack.removeLast();
-                    System.out.println("Backtracking to: " + lastVar);
                     int xVal = Integer.parseInt(lastVar.split("\\.")[0]);
                     int yVal = Integer.parseInt(lastVar.split("\\.")[1]);
                     currentLocation = new int[]{xVal, yVal};
-                    System.out.println("New current location: " + Arrays.toString(currentLocation));
                 }
             } else {
                 Random rand = new Random();
