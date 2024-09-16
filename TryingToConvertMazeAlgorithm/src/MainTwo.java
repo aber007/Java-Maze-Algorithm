@@ -7,14 +7,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
+
 public class MainTwo {
     //User inputs
     private static final boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static final int xCord = 5000;  // Number of rows
-    private static final int yCord = 5000;  // Number of columns
+    private static final int xCord = 1000;  // Number of rows
+    private static final int yCord = 1000;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
     // Do not change
@@ -43,7 +44,6 @@ public class MainTwo {
             }
         }
         locationsToAvoid.put("0.0", false);
-        System.out.println(locationsToAvoid);
 
         // Initialize wall data structures
         horizontalWalls = new boolean[xCord][yCord];
@@ -233,6 +233,20 @@ public class MainTwo {
     }
     public static void timerThread() {
         start = System.currentTimeMillis();
+
+        while (algorithmStatus){
+            int progress = 0;
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
+            for (Boolean value : locationsToAvoid.values()) {
+                if (Boolean.FALSE.equals(value)) {
+                    progress++;
+                }
+            }
+            float progressf = (float) progress / locationsToAvoid.size();
+
+            System.out.println("Progress: "+ progressf);
+        }
     }
 
     public static void algorithm() {
@@ -273,7 +287,6 @@ public class MainTwo {
                 backTrack.add(currentLocation[0] + "." + currentLocation[1]);
             }
             if (possibleMoves.isEmpty()) {
-                System.out.println("No possible moves, initiating backtrack.");
                 if (currentLocation[0] == 0 && currentLocation[1] == 0 ) {
                     System.out.println("Maze Finished");
                     long time = System.currentTimeMillis() - start;
@@ -311,56 +324,59 @@ public class MainTwo {
         }
     }
 
-
     // Custom JPanel to render the grid
     static class GridPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2d = (Graphics2D) g;
+            boolean visualize = true;
+            if (visualize) {
 
-            // Update camera position if centering on player
-            if (centerCameraOnPlayer) {
-                cameraX = currentLocation[1] - getWidth() / (2 * CELL_SIZE);
-                cameraY = currentLocation[0] - getHeight() / (2 * CELL_SIZE);
-                cameraX = Math.max(0, Math.min(xCord - 1, cameraX));  // Clamp camera position
-                cameraY = Math.max(0, Math.min(yCord - 1, cameraY));  // Clamp camera position
-            }
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
 
-            // Draw grid cells and walls with camera offset
-            for (int i = 0; i < xCord; i++) {
-                for (int j = 0; j < yCord; j++) {
+                // Update camera position if centering on player
+                if (centerCameraOnPlayer) {
+                    cameraX = currentLocation[1] - getWidth() / (2 * CELL_SIZE);
+                    cameraY = currentLocation[0] - getHeight() / (2 * CELL_SIZE);
+                    cameraX = Math.max(0, Math.min(xCord - 1, cameraX));  // Clamp camera position
+                    cameraY = Math.max(0, Math.min(yCord - 1, cameraY));  // Clamp camera position
+                }
 
-                    int screenX = (j - cameraX) * CELL_SIZE;
-                    int screenY = (i - cameraY) * CELL_SIZE;
+                // Draw grid cells and walls with camera offset
+                for (int i = 0; i < xCord; i++) {
+                    for (int j = 0; j < yCord; j++) {
 
-                    // Only draw visible cells
-                    if (screenX + CELL_SIZE > 0 && screenY + CELL_SIZE > 0 &&
-                            screenX < getWidth() && screenY < getHeight()) {
+                        int screenX = (j - cameraX) * CELL_SIZE;
+                        int screenY = (i - cameraY) * CELL_SIZE;
 
-                        // Draw the cell background
-                        g2d.setColor(Color.GRAY);
-                        g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                        // Only draw visible cells
+                        if (screenX + CELL_SIZE > 0 && screenY + CELL_SIZE > 0 &&
+                                screenX < getWidth() && screenY < getHeight()) {
 
-                        // Draw the player
-                        if (i == currentLocation[0] && j == currentLocation[1]) {
-                            g2d.setColor(Color.BLUE);
+                            // Draw the cell background
+                            g2d.setColor(Color.GRAY);
                             g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+
+                            // Draw the player
+                            if (i == currentLocation[0] && j == currentLocation[1]) {
+                                g2d.setColor(Color.BLUE);
+                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                            }
+
+                            // Draw walls
+                            g2d.setColor(Color.BLACK);
+
+                            // Vertical walls (including rightmost vertical wall at the far right of the grid)
+                            if (j < yCord - 1 && verticalWalls[i][j]) {
+                                g2d.fillRect(screenX + CELL_SIZE - 2, screenY, 2, CELL_SIZE);
+                            }
+
+                            // Horizontal walls (including bottom horizontal wall at the bottom of the grid)
+                            if (i < xCord - 1 && horizontalWalls[i][j]) {
+                                g2d.fillRect(screenX, screenY + CELL_SIZE - 2, CELL_SIZE, 2);
+                            }
+
                         }
-
-                        // Draw walls
-                        g2d.setColor(Color.BLACK);
-
-                        // Vertical walls (including rightmost vertical wall at the far right of the grid)
-                        if (j < yCord - 1 && verticalWalls[i][j]) {
-                            g2d.fillRect(screenX + CELL_SIZE-2, screenY, 2, CELL_SIZE);
-                        }
-
-                        // Horizontal walls (including bottom horizontal wall at the bottom of the grid)
-                        if (i < xCord - 1 && horizontalWalls[i][j]) {
-                            g2d.fillRect(screenX, screenY + CELL_SIZE-2, CELL_SIZE, 2);
-                        }
-
                     }
                 }
             }
