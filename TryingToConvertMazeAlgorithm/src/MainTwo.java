@@ -60,6 +60,9 @@ public class MainTwo {
         }
 
         // Create main window
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double width = screenSize.getWidth();
+        double height = screenSize.getHeight();
         JFrame mainFrame = new JFrame("Maze Algorithm");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -68,27 +71,32 @@ public class MainTwo {
 
         //Add Layered Frame
         JLayeredPane mainLayers = new JLayeredPane();
-        mainLayers.setLayout(null);
-        mainLayers.setBounds(0, 0, 1920, 1080);
+//        mainLayers.setLayout(null);
+        mainLayers.setBounds(0, 0, (int) width, (int) height);
         mainFrame.add(mainLayers);
 
         // Create custom grid panel
         JScrollPane scrollPane = new JScrollPane(gridPanel);
-        scrollPane.setBounds(0, 0, 1920, 1080);
+        scrollPane.setBounds(0, 0, (int) width, (int) height);
         mainLayers.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
         // Create overlay
         JPanel overlayBg = new JPanel();
-        overlayBg.setBounds(1920-200, 0, 200, 1080);
+        overlayBg.setBounds((int) width-200, 0, 200, (int) height);
         overlayBg.setBackground(Color.BLACK);
         mainLayers.add(overlayBg, JLayeredPane.PALETTE_LAYER);
         overlayBg.setVisible(false);
 
         // Create buttons
         JButton start = new JButton("Start/Stop");
-        start.addActionListener(_ -> startAlgorithm());
+        start.addActionListener(_ -> {
+            startAlgorithm();
+            mainFrame.requestFocusInWindow();
+        });
         start.setBackground(Color.GREEN);
         overlayBg.add(start);
+
+
 
 
         // Create Button
@@ -96,9 +104,13 @@ public class MainTwo {
         JButton overlayButton = new JButton("", overlayIcon);
         overlayButton.setOpaque(false);
         overlayButton.setContentAreaFilled(false);
-        overlayButton.setBounds(1920-50,0,50,50);
-        overlayButton.addActionListener(_ -> toggleOverlay(overlayBg));
+        overlayButton.setBounds((int)width-50,0,50,50);
+        overlayButton.addActionListener(_ -> {
+            toggleOverlay(overlayBg);
+            mainFrame.requestFocusInWindow();
+        });
         mainLayers.add(overlayButton, JLayeredPane.MODAL_LAYER);
+        overlayButton.setVisible(true);
 
 
         // Add key listener for movement and zooming
@@ -271,9 +283,7 @@ public class MainTwo {
                     progress++;
                 }
             }
-            float progressf = (float) progress / locationsToAvoid.size();
-
-            System.out.println("Progress: "+ progressf);
+            float progressF = (float) progress / locationsToAvoid.size();
         }
     }
 
