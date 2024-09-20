@@ -84,6 +84,7 @@ public class MainTwo {
         JPanel overlayBg = new JPanel();
         overlayBg.setBounds((int) width-200, 0, 200, (int) height);
         overlayBg.setBackground(Color.BLACK);
+        overlayBg.setLayout(null);
         mainLayers.add(overlayBg, JLayeredPane.PALETTE_LAYER);
         overlayBg.setVisible(false);
 
@@ -93,6 +94,7 @@ public class MainTwo {
             startAlgorithm();
             mainFrame.requestFocusInWindow();
         });
+        start.setBounds(30,30,100,30);
         start.setBackground(Color.GREEN);
         overlayBg.add(start);
 
