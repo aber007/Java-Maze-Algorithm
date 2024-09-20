@@ -1,9 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -14,8 +12,8 @@ public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static final int xCord = 1000;  // Number of rows
-    private static final int yCord = 1000;  // Number of columns
+    private static final int xCord = 100;  // Number of rows
+    private static final int yCord = 100;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
     // Do not change
@@ -32,7 +30,7 @@ public class MainTwo {
     public static boolean backTrackStatus = false;
     public static GridPanel gridPanel = new GridPanel();
     public static long start;
-
+    public static boolean overlayToggle = false;
 
 
     public static void main(String[] args) {
@@ -68,10 +66,40 @@ public class MainTwo {
         // Set to fullscreen
         mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
 
-        // Create custom grid panel
+        //Add Layered Frame
+        JLayeredPane mainLayers = new JLayeredPane();
+        mainLayers.setLayout(null);
+        mainLayers.setBounds(0, 0, 1920, 1080);
+        mainFrame.add(mainLayers);
 
+        // Create custom grid panel
         JScrollPane scrollPane = new JScrollPane(gridPanel);
-        mainFrame.add(scrollPane);
+        scrollPane.setBounds(0, 0, 1920, 1080);
+        mainLayers.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
+
+        // Create overlay
+        JPanel overlayBg = new JPanel();
+        overlayBg.setBounds(1920-200, 0, 200, 1080);
+        overlayBg.setBackground(Color.BLACK);
+        mainLayers.add(overlayBg, JLayeredPane.PALETTE_LAYER);
+        overlayBg.setVisible(false);
+
+        // Create buttons
+        JButton start = new JButton("Start/Stop");
+        start.addActionListener(_ -> startAlgorithm());
+        start.setBackground(Color.GREEN);
+        overlayBg.add(start);
+
+
+        // Create Button
+        ImageIcon overlayIcon = new ImageIcon("Images/image1.png");
+        JButton overlayButton = new JButton("", overlayIcon);
+        overlayButton.setOpaque(false);
+        overlayButton.setContentAreaFilled(false);
+        overlayButton.setBounds(1920-50,0,50,50);
+        overlayButton.addActionListener(_ -> toggleOverlay(overlayBg));
+        mainLayers.add(overlayButton, JLayeredPane.MODAL_LAYER);
+
 
         // Add key listener for movement and zooming
         mainFrame.addKeyListener(new KeyListener() {
@@ -121,13 +149,13 @@ public class MainTwo {
                 gridPanel.repaint(); // Repaint the grid after moving or zooming
             }
 
+
             @Override
             public void keyReleased(KeyEvent e) {}
 
             @Override
             public void keyTyped(KeyEvent e) {}
         });
-
         mainFrame.pack();
         mainFrame.setVisible(true);
         mainFrame.setFocusable(true);
@@ -324,6 +352,11 @@ public class MainTwo {
         }
     }
 
+    public static void toggleOverlay(JPanel overlayBg) {
+        overlayToggle = !overlayToggle;
+        System.out.println("Overlay " + (overlayToggle ? "ON" : "OFF"));
+        overlayBg.setVisible(overlayToggle);
+    }
     // Custom JPanel to render the grid
     static class GridPanel extends JPanel {
         @Override
