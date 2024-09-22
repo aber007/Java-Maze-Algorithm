@@ -84,7 +84,7 @@ public class MainTwo {
 
         // Live Update Checkbox
         JCheckBox liveUpdateCheckbox = new JCheckBox("Live Update", liveUpdate);
-        liveUpdateCheckbox.setForeground(Color.WHITE);
+        liveUpdateCheckbox.setForeground(Color.BLACK);
         liveUpdateCheckbox.setBounds(30, 200, 150, 20);
         overlayBg.add(liveUpdateCheckbox);
 
@@ -216,34 +216,14 @@ public class MainTwo {
     }
 
     private static void resetApp(JFrame mainFrame) {
-        // Add values to lists
-        for (int i = 0; i < xCord; i++) {
-            for (int j = 0; j < yCord; j++) {
-                locationsToAvoid.put(i + "." + j, true);
-            }
-        }
-        locationsToAvoid.put("0.0", false);
-
-        // Initialize wall data structures
-        horizontalWalls = new boolean[xCord][yCord];
-        verticalWalls = new boolean[xCord][yCord];
-
-        // Create walls for testing
-        for (int i = 0; i < xCord; i++) {
-            for (int j = 0; j < yCord; j++) {
-                horizontalWalls[i][j] = true;  // Add horizontal walls between cells
-            }
-        }
-        for (int i = 0; i < xCord; i++) {
-            for (int j = 0; j < yCord; j++) {
-                verticalWalls[i][j] = true;  // Add vertical walls between cells
-            }
-        }
-        algorithmStatus = false;
+        mainFrame.dispose();
+        backTrack.clear();
+        backTrack.add("0.0");
         currentLocation[0] = 0;
         currentLocation[1] = 0;
-        backTrack = new ArrayList<>();
-        mainFrame.repaint();
+        main(null);
+
+
     }
 
     // Player movement
@@ -404,6 +384,7 @@ public class MainTwo {
                     liveUpdate = true;
                     System.out.println("Time taken: " + time + " ms / " + time / 1000 + " seconds");
                     algorithmStatus = false;
+                    gridPanel.repaint();
                 }
                 backTrackStatus = true;
                 // Trigger backtrack here
