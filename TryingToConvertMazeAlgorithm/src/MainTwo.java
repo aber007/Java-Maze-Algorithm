@@ -11,7 +11,7 @@ public class MainTwo {
     private static boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
-    private static final int MAX_CELL_SIZE = 100; // Maximum cell size
+    private static final int MAX_CELL_SIZE = 500; // Maximum cell size
     private static int xCord = 100;  // Number of rows
     private static int yCord = 100;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
@@ -31,6 +31,8 @@ public class MainTwo {
     public static GridPanel gridPanel = new GridPanel();
     public static long start;
     public static boolean overlayToggle = false;
+    public static boolean analogSolverMode = false;
+
 
 
     public static void main(String[] args) {
@@ -88,6 +90,13 @@ public class MainTwo {
         liveUpdateCheckbox.setBounds(30, 200, 150, 20);
         overlayBg.add(liveUpdateCheckbox);
 
+        // Solver Mode
+        JCheckBox analogSolverModeCheckbox = new JCheckBox("Analog Solver", analogSolverMode);
+        analogSolverModeCheckbox.setForeground(Color.BLACK);
+        analogSolverModeCheckbox.setBounds(30, 350, 150, 20);
+        overlayBg.add(analogSolverModeCheckbox);
+
+
         // X Coordinate Input
         JLabel gridSize = new JLabel("Grid Size:");
         gridSize.setForeground(Color.WHITE);
@@ -103,7 +112,7 @@ public class MainTwo {
         JButton start = new JButton("Start");
         start.setBounds(30, 30, 100, 30);
         start.addActionListener(e -> {
-            startAlgorithm();
+            startAlgorithm(analogSolverModeCheckbox, mainFrame);
             mainFrame.requestFocusInWindow();
         });
         start.setBackground(Color.GREEN);
@@ -139,6 +148,13 @@ public class MainTwo {
             mainFrame.requestFocusInWindow();
         });
 
+        analogSolverModeCheckbox.addActionListener(e -> {
+            analogSolverMode = analogSolverModeCheckbox.isSelected();
+            algorithmStatus = false;
+            mainFrame.requestFocusInWindow();
+
+        });
+
         // Action listener for X Coordinate input
         sizeInput.addActionListener(e -> {
             try {
@@ -161,16 +177,16 @@ public class MainTwo {
                 int keyCode = e.getKeyCode();
                 switch (keyCode) {
                     case KeyEvent.VK_UP:
-                        moveNorth();
+                        moveNorth(mainFrame);
                         break;
                     case KeyEvent.VK_DOWN:
-                        moveSouth();
+                        moveSouth(mainFrame);
                         break;
                     case KeyEvent.VK_LEFT:
-                        moveWest();
+                        moveWest(mainFrame);
                         break;
                     case KeyEvent.VK_RIGHT:
-                        moveEast();
+                        moveEast(mainFrame);
                         break;
                     case KeyEvent.VK_PLUS:  // Zoom in (+ key)
                     case KeyEvent.VK_EQUALS:  // Zoom in (on some keyboards, + is the same as = key)
@@ -195,7 +211,7 @@ public class MainTwo {
                         toggleCameraCentering();
                         break;
                     case KeyEvent.VK_SPACE:
-                        startAlgorithm();
+                        startAlgorithm(analogSolverModeCheckbox, mainFrame);
                         break;
 
                 }
@@ -227,47 +243,88 @@ public class MainTwo {
     }
 
     // Player movement
-    public static void moveNorth() {
+    public static void moveNorth(JFrame mainFrame) {
         if (currentLocation[0] > 0) {
             // Remove horizontal wall if exists
-            if (horizontalWalls[currentLocation[0] - 1][currentLocation[1]]) {
-                horizontalWalls[currentLocation[0] - 1][currentLocation[1]] = false;
+            if (!analogSolverMode) {
+                if (horizontalWalls[currentLocation[0] - 1][currentLocation[1]]) {
+                    horizontalWalls[currentLocation[0] - 1][currentLocation[1]] = false;
+                }
+                currentLocation[0]--;
+                locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
             }
-            currentLocation[0]--;
-            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
+            else{
+                if (!horizontalWalls[currentLocation[0] - 1][currentLocation[1]]){
+                    currentLocation[0]--;
+                }
+            }
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
+                JOptionPane.showMessageDialog(mainFrame, "You did it :)");
+
+            }
         }
     }
 
-    public static void moveSouth() {
+    public static void moveSouth(JFrame mainFrame) {
         if (currentLocation[0] < xCord - 1) {
             // Remove horizontal wall if exists
-            if (horizontalWalls[currentLocation[0]][currentLocation[1]]) {
-                horizontalWalls[currentLocation[0]][currentLocation[1]] = false;
+            if (!analogSolverMode) {
+                if (horizontalWalls[currentLocation[0]][currentLocation[1]]) {
+                    horizontalWalls[currentLocation[0]][currentLocation[1]] = false;
+                }
+                currentLocation[0]++;
+                locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
             }
-            currentLocation[0]++;
-            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
+            else{
+                if (!horizontalWalls[currentLocation[0]][currentLocation[1]]){
+                    currentLocation[0]++;
+                }
+            }
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
+                JOptionPane.showMessageDialog(mainFrame, "You did it :)");
+            }
         }
     }
 
-    public static void moveWest() {
+    public static void moveWest(JFrame mainFrame) {
         if (currentLocation[1] > 0) {
             // Remove vertical wall if exists
-            if (verticalWalls[currentLocation[0]][currentLocation[1] - 1]) {
-                verticalWalls[currentLocation[0]][currentLocation[1] - 1] = false;
+            if (!analogSolverMode) {
+                if (verticalWalls[currentLocation[0]][currentLocation[1] - 1]) {
+                    verticalWalls[currentLocation[0]][currentLocation[1] - 1] = false;
+                }
+                currentLocation[1]--;
+                locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
             }
-            currentLocation[1]--;
-            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
+            else{
+                if (!verticalWalls[currentLocation[0]][currentLocation[1] - 1]){
+                    currentLocation[1]--;
+                }
+            }
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
+                JOptionPane.showMessageDialog(mainFrame, "You did it :)");
+            }
         }
     }
 
-    public static void moveEast() {
+    public static void moveEast(JFrame mainFrame) {
         if (currentLocation[1] < yCord - 1) {
             // Remove vertical wall if exists
-            if (verticalWalls[currentLocation[0]][currentLocation[1]]) {
-                verticalWalls[currentLocation[0]][currentLocation[1]] = false;
+            if (!analogSolverMode) {
+                if (verticalWalls[currentLocation[0]][currentLocation[1]]) {
+                    verticalWalls[currentLocation[0]][currentLocation[1]] = false;
+                }
+                currentLocation[1]++;
+                locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
             }
-            currentLocation[1]++;
-            locationsToAvoid.put(currentLocation[0] + "." + currentLocation[1], false);
+            else{
+                if (!verticalWalls[currentLocation[0]][currentLocation[1]]){
+                    currentLocation[1]++;
+                }
+            }
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
+                JOptionPane.showMessageDialog(mainFrame, "You did it :)");
+            }
         }
     }
 
@@ -314,11 +371,13 @@ public class MainTwo {
     }
 
     // Main Algorithm
-    public static void startAlgorithm() {
+    public static void startAlgorithm(JCheckBox analogSolverModeCheckbox, JFrame mainFrame) {
         //check nearby cells if they exist and have not been visited
         algorithmStatus = !algorithmStatus;
+        analogSolverMode = false;
+        analogSolverModeCheckbox.setSelected(false);
 
-        Thread algorithmThread = new Thread(MainTwo::algorithm);
+        Thread algorithmThread = new Thread(() -> algorithm(mainFrame));
         algorithmThread.start(); // Start the thread
         start = System.currentTimeMillis();
         Thread timer = new Thread(MainTwo::timerThread);
@@ -340,7 +399,7 @@ public class MainTwo {
         }
     }
 
-    public static void algorithm() {
+    public static void algorithm(JFrame mainFrame) {
         while (algorithmStatus) {
             if (liveUpdate) {
                 SwingUtilities.invokeLater(gridPanel::repaint);
@@ -401,16 +460,16 @@ public class MainTwo {
                 backTrackStatus = false;
                 switch (directionToMove) {
                     case "NORTH":
-                        moveNorth();
+                        moveNorth(mainFrame);
                         break;
                     case "SOUTH":
-                        moveSouth();
+                        moveSouth(mainFrame);
                         break;
                     case "WEST":
-                        moveWest();
+                        moveWest(mainFrame);
                         break;
                     case "EAST":
-                        moveEast();
+                        moveEast(mainFrame);
                         break;
                 }
             }
@@ -480,5 +539,8 @@ public class MainTwo {
                 }
             }
         }
+    }
+    static class aPrimeAlgorithm{
+
     }
 }
