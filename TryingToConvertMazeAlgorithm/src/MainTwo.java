@@ -8,12 +8,12 @@ import java.util.Random;
 
 public class MainTwo {
     //User inputs
-    private static final boolean liveUpdate = true; // If the maze should update in real time
+    private static boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 100; // Maximum cell size
-    private static final int xCord = 100;  // Number of rows
-    private static final int yCord = 100;  // Number of columns
+    private static int xCord = 100;  // Number of rows
+    private static int yCord = 100;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
     // Do not change
@@ -24,7 +24,7 @@ public class MainTwo {
     private static final int cameraSpeed = 10;  // Speed of camera movement
     private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
     private static final HashMap<String, Boolean> locationsToAvoid = new HashMap<>();
-    private static final ArrayList<String> backTrack = new ArrayList<>();
+    private static ArrayList<String> backTrack = new ArrayList<>();
     private static final ArrayList<String> possibleMoves = new ArrayList<>();
     private static boolean algorithmStatus = false;
     public static boolean backTrackStatus = false;
@@ -35,7 +35,6 @@ public class MainTwo {
 
     public static void main(String[] args) {
         // Add values to lists
-
         for (int i = 0; i < xCord; i++) {
             for (int j = 0; j < yCord; j++) {
                 locationsToAvoid.put(i + "." + j, true);
@@ -59,36 +58,50 @@ public class MainTwo {
             }
         }
 
-        // Create main window
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
         JFrame mainFrame = new JFrame("Maze Algorithm");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Set to fullscreen
         mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-
-        //Add Layered Frame
         JLayeredPane mainLayers = new JLayeredPane();
-//        mainLayers.setLayout(null);
+        mainLayers.setLayout(null);
         mainLayers.setBounds(0, 0, (int) width, (int) height);
         mainFrame.add(mainLayers);
 
-        // Create custom grid panel
-        JScrollPane scrollPane = new JScrollPane(gridPanel);
+        JScrollPane scrollPane = new JScrollPane(gridPanel); // Placeholder for gridPanel
         scrollPane.setBounds(0, 0, (int) width, (int) height);
         mainLayers.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
-        // Create overlay
+        // Overlay panel
         JPanel overlayBg = new JPanel();
-        overlayBg.setBounds((int) width-200, 0, 200, (int) height);
+        overlayBg.setBounds((int) width - 200, 0, 200, (int) height);
         overlayBg.setBackground(Color.BLACK);
+        overlayBg.setLayout(null);
         mainLayers.add(overlayBg, JLayeredPane.PALETTE_LAYER);
-        overlayBg.setVisible(false);
+        overlayBg.setVisible(true);
 
-        // Create buttons
-        JButton start = new JButton("Start/Stop");
+        // Live Update Checkbox
+        JCheckBox liveUpdateCheckbox = new JCheckBox("Live Update", liveUpdate);
+        liveUpdateCheckbox.setForeground(Color.BLACK);
+        liveUpdateCheckbox.setBounds(30, 200, 150, 20);
+        overlayBg.add(liveUpdateCheckbox);
+
+        // X Coordinate Input
+        JLabel gridSize = new JLabel("Grid Size:");
+        gridSize.setForeground(Color.WHITE);
+        gridSize.setBounds(30, 230, 150, 20);
+        overlayBg.add(gridSize);
+
+        JTextField sizeInput = new JTextField(String.valueOf(xCord));
+        sizeInput.setBounds(30, 260, 150, 30);
+        overlayBg.add(sizeInput);
+
+
+        // Buttons
+        JButton start = new JButton("Start");
+        start.setBounds(30, 30, 100, 30);
         start.addActionListener(_ -> {
             startAlgorithm();
             mainFrame.requestFocusInWindow();
@@ -96,21 +109,49 @@ public class MainTwo {
         start.setBackground(Color.GREEN);
         overlayBg.add(start);
 
+        JButton reset = new JButton("Reset (WIP)");
+        reset.setBounds(30, 70, 100, 30);
+        reset.addActionListener(_ -> {
+            resetApp(mainFrame);
+            mainFrame.requestFocusInWindow();
+        });
+        reset.setBackground(Color.ORANGE);
+        overlayBg.add(reset);
 
-
-
-        // Create Button
+        // Open/Close Overlay Button
         ImageIcon overlayIcon = new ImageIcon("Images/image1.png");
         JButton overlayButton = new JButton("", overlayIcon);
         overlayButton.setOpaque(false);
         overlayButton.setContentAreaFilled(false);
-        overlayButton.setBounds((int)width-50,0,50,50);
-        overlayButton.addActionListener(_ -> {
-            toggleOverlay(overlayBg);
-            mainFrame.requestFocusInWindow();
+        overlayButton.setBounds((int) width - 50, 0, 50, 50);
+        overlayButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                overlayBg.setVisible(!overlayBg.isVisible());
+                mainFrame.requestFocusInWindow();
+            }
         });
         mainLayers.add(overlayButton, JLayeredPane.MODAL_LAYER);
         overlayButton.setVisible(true);
+
+
+        liveUpdateCheckbox.addActionListener(e -> {
+            liveUpdate = liveUpdateCheckbox.isSelected();
+            mainFrame.requestFocusInWindow();
+        });
+
+        // Action listener for X Coordinate input
+        sizeInput.addActionListener(e -> {
+            try {
+                xCord = Integer.parseInt(sizeInput.getText());
+                yCord = Integer.parseInt(sizeInput.getText());
+                resetApp(mainFrame);
+                if (xCord <= 0) throw new NumberFormatException(); // Ensure positive value
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(mainFrame, "Invalid X coordinate. Please enter a positive integer.");
+            }
+            mainFrame.requestFocusInWindow();
+        });
+
 
 
         // Add key listener for movement and zooming
@@ -172,6 +213,17 @@ public class MainTwo {
         mainFrame.setVisible(true);
         mainFrame.setFocusable(true);
         mainFrame.requestFocusInWindow();
+    }
+
+    private static void resetApp(JFrame mainFrame) {
+        mainFrame.dispose();
+        backTrack.clear();
+        backTrack.add("0.0");
+        currentLocation[0] = 0;
+        currentLocation[1] = 0;
+        main(null);
+
+
     }
 
     // Player movement
@@ -265,6 +317,7 @@ public class MainTwo {
     public static void startAlgorithm() {
         //check nearby cells if they exist and have not been visited
         algorithmStatus = !algorithmStatus;
+
         Thread algorithmThread = new Thread(MainTwo::algorithm);
         algorithmThread.start(); // Start the thread
         start = System.currentTimeMillis();
@@ -328,8 +381,10 @@ public class MainTwo {
                 if (currentLocation[0] == 0 && currentLocation[1] == 0 ) {
                     System.out.println("Maze Finished");
                     long time = System.currentTimeMillis() - start;
+                    liveUpdate = true;
                     System.out.println("Time taken: " + time + " ms / " + time / 1000 + " seconds");
                     algorithmStatus = false;
+                    gridPanel.repaint();
                 }
                 backTrackStatus = true;
                 // Trigger backtrack here
@@ -361,6 +416,7 @@ public class MainTwo {
             }
         }
     }
+
 
     public static void toggleOverlay(JPanel overlayBg) {
         overlayToggle = !overlayToggle;
