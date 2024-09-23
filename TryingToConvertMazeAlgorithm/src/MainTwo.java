@@ -32,6 +32,7 @@ public class MainTwo {
     public static long start;
     public static boolean overlayToggle = false;
     public static boolean analogSolverMode = false;
+    public static JFrame mainFrame;
 
 
     public static void main(String[] args) {
@@ -284,7 +285,7 @@ public class MainTwo {
         }
     }
 
-    public static void moveWest() {
+    public static void moveWest(JFrame mainFrame) {
         if (currentLocation[1] > 0) {
             // Remove vertical wall if exists
             if (!analogSolverMode) {
@@ -299,10 +300,13 @@ public class MainTwo {
                     currentLocation[1]--;
                 }
             }
+            if (analogSolverMode && currentLocation[0] == xCord && currentLocation[1] == yCord){
+                JOptionPane.showMessageDialog(mainFrame, "You did it :)");
+            }
         }
     }
 
-    public static void moveEast() {
+    public static void moveEast(JFrame mainFrame) {
         if (currentLocation[1] < yCord - 1) {
             // Remove vertical wall if exists
             if (!analogSolverMode) {
@@ -316,6 +320,9 @@ public class MainTwo {
                 if (!verticalWalls[currentLocation[0]][currentLocation[1]]){
                     currentLocation[1]++;
                 }
+            }
+            if (analogSolverMode && currentLocation[0] == xCord && currentLocation[1] == yCord){
+                JOptionPane.showMessageDialog(mainFrame, "You did it :)");
             }
         }
     }
