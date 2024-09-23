@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -35,8 +36,20 @@ public class MainTwo {
 
 
 
+    //A star algorithm
+    public static HashMap<String,Boolean> openCells = new HashMap<>();
+    public static HashMap<String,Boolean> closedCells = new HashMap<>();
+    public static int[] startCell = {0, 0};
+    public static int[] endCell = new int[2];
+    public static int[] lastIntersection = null;
+
+
+
+
     public static void main(String[] args) {
         // Add values to lists
+
+        System.out.println("Adding Values to Lists");
         for (int i = 0; i < xCord; i++) {
             for (int j = 0; j < yCord; j++) {
                 locationsToAvoid.put(i + "." + j, true);
@@ -45,10 +58,12 @@ public class MainTwo {
         locationsToAvoid.put("0.0", false);
 
         // Initialize wall data structures
+        System.out.println("Initiating Data Structures");
         horizontalWalls = new boolean[xCord][yCord];
         verticalWalls = new boolean[xCord][yCord];
 
         // Create walls for testing
+        System.out.println("Creating walls");
         for (int i = 0; i < xCord; i++) {
             for (int j = 0; j < yCord; j++) {
                 horizontalWalls[i][j] = true;  // Add horizontal walls between cells
@@ -60,6 +75,7 @@ public class MainTwo {
             }
         }
 
+        System.out.println("Creating Frame");
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         double width = screenSize.getWidth();
         double height = screenSize.getHeight();
@@ -127,7 +143,18 @@ public class MainTwo {
         reset.setBackground(Color.ORANGE);
         overlayBg.add(reset);
 
+        JButton aStarAlgorithmButton = new JButton("A* Algorithm");
+        aStarAlgorithmButton.setBackground(Color.GREEN);
+        aStarAlgorithmButton.setBounds(30, 390, 100, 30);
+        aStarAlgorithmButton.addActionListener(e -> {
+            aStarAlgorithm();
+            mainFrame.requestFocusInWindow();
+        });
+        overlayBg.add(aStarAlgorithmButton);
+
+
         // Open/Close Overlay Button
+        System.out.println("Loading Overlays");
         ImageIcon overlayIcon = new ImageIcon("Images/image1.png");
         JButton overlayButton = new JButton("", overlayIcon);
         overlayButton.setOpaque(false);
@@ -167,6 +194,24 @@ public class MainTwo {
             }
             mainFrame.requestFocusInWindow();
         });
+
+        //Init A* algorithm
+
+        System.out.println("Initiating A* Algorithm");
+        for (int i = 0; i < xCord; i++) {
+            for (int j = 0; j < yCord; j++) {
+                openCells.put(i + "." + j, true);
+            }
+        }
+        for (int i = 0; i < xCord; i++) {
+            for (int j = 0; j < yCord; j++) {
+                closedCells.put(i + "." + j, false);
+            }
+        }
+        endCell[0] = xCord-1;
+        endCell[1] = yCord-1;
+
+        System.out.println("Done");
 
 
 
@@ -540,7 +585,78 @@ public class MainTwo {
             }
         }
     }
-    static class aPrimeAlgorithm{
+    public static void aStarAlgorithm() {
+        //Find possible moves
+
+
+        ArrayList<String> possibleAStarMoves = new ArrayList();
+        if (currentLocation[1] < yCord - 1) {
+            if (!verticalWalls[currentLocation[0]][currentLocation[1]]) {
+                possibleAStarMoves.add("EAST");
+            }
+        }
+        if (currentLocation[1] > 0) {
+            if (!verticalWalls[currentLocation[0]][currentLocation[1] - 1]) {
+                possibleAStarMoves.add("WEST");
+            }
+        }
+        if (currentLocation[0] < xCord - 1) {
+            if (!horizontalWalls[currentLocation[0]][currentLocation[1]]) {
+                possibleAStarMoves.add("SOUTH");
+            }
+        }
+        if (currentLocation[0] > 0) {
+            if (!horizontalWalls[currentLocation[0] - 1][currentLocation[1]]) {
+                possibleAStarMoves.add("NORTH");
+            }
+        }
+        System.out.println(possibleAStarMoves);
+        if (possibleAStarMoves.size() > 2) {
+            lastIntersection = Arrays.copyOf(currentLocation, currentLocation.length);
+        }
+        System.out.println(Arrays.toString(lastIntersection));
+
+        // Determine cost of movement
+
+        double northCost = 0;
+        double southCost = 0;
+        double eastCost = 0;
+        double westCost = 0;
+        int[] northCell = {currentLocation[0] - 1, currentLocation[1]};
+        int[] southCell = {currentLocation[0] + 1, currentLocation[1]};
+        int[] eastCell = {currentLocation[0], currentLocation[1]+1};
+        int[] westCell = {currentLocation[0], currentLocation[1]-1};
+        for (String direction : possibleAStarMoves) {
+            switch (direction) {
+                case "NORTH":
+                    northCost = Math.sqrt(Math.pow(endCell[0] - northCell[0], 2) + Math.pow(endCell[1] - northCell[1],2));
+                    break;
+                case "SOUTH":
+                    southCost = Math.sqrt(Math.pow(endCell[0] - southCell[0], 2) + Math.pow(endCell[1] - southCell[1],2));
+                    break;
+                case "EAST":
+                    eastCost = Math.sqrt(Math.pow(endCell[0] - eastCell[0], 2) + Math.pow(endCell[1] - eastCell[1],2));
+                    break;
+                case "WEST":
+                    westCost = Math.sqrt(Math.pow(endCell[0] - westCell[0], 2) + Math.pow(endCell[1] - westCell[1],2));
+                    break;
+            }
+        }
+        System.out.println("Current Cell: " + Arrays.toString(currentLocation));
+        System.out.println("North Cell: " + Arrays.toString(northCell));
+        System.out.println("South Cell: " + Arrays.toString(southCell));
+        System.out.println("East Cell: " + Arrays.toString(eastCell));
+        System.out.println("West Cell: " + Arrays.toString(westCell));
+        System.out.println("");
+        System.out.println("North Cost: " + northCost);
+        System.out.println("South Cost: " + southCost);
+        System.out.println("East Cost: " + eastCost);
+        System.out.println("West Cost: " + westCost);
+
+        double minValue1 = Math.min(northCost, southCost);
+        double minValue2 = Math.min(eastCost, westCost);
+        double minValue = Math.min(minValue1, minValue2);
+
 
     }
 }
