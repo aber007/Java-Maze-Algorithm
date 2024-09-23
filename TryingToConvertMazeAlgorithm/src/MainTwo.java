@@ -425,4 +425,7 @@ public class MainTwo {
             }
         }
     }
+    static class aPrimeAlgorithm{
+
+    }
 }
