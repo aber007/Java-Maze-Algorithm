@@ -102,7 +102,7 @@ public class MainTwo {
         // Buttons
         JButton start = new JButton("Start");
         start.setBounds(30, 30, 100, 30);
-        start.addActionListener(_ -> {
+        start.addActionListener(e -> {
             startAlgorithm();
             mainFrame.requestFocusInWindow();
         });
@@ -111,7 +111,7 @@ public class MainTwo {
 
         JButton reset = new JButton("Reset (WIP)");
         reset.setBounds(30, 70, 100, 30);
-        reset.addActionListener(_ -> {
+        reset.addActionListener(e -> {
             resetApp(mainFrame);
             mainFrame.requestFocusInWindow();
         });
@@ -352,28 +352,28 @@ public class MainTwo {
                         possibleMoves.add("NORTH");
                     }
                 }
-            } catch (Exception _) {}
+            } catch (Exception e) {}
             try {
                 if (currentLocation[0] != yCord - 1) {
                     if (locationsToAvoid.get(currentLocation[0] + 1 + "." + currentLocation[1])) {
                         possibleMoves.add("SOUTH");
                     }
                 }
-            }catch (Exception _) {}
+            }catch (Exception e) {}
             try {
                 if (currentLocation[1] != 0) {
                     if (locationsToAvoid.get(currentLocation[0] + "." + (currentLocation[1] - 1))) {
                         possibleMoves.add("WEST");
                     }
                 }
-            } catch (Exception _) {}
+            } catch (Exception e) {}
             try {
                 if (currentLocation[1] != xCord - 1) {
                     if (locationsToAvoid.get(currentLocation[0] + "." + (currentLocation[1] + 1))) {
                         possibleMoves.add("EAST");
                     }
                 }
-            } catch (Exception _) {}
+            } catch (Exception e) {}
             if (!backTrackStatus){
                 backTrack.add(currentLocation[0] + "." + currentLocation[1]);
             }
