@@ -618,10 +618,10 @@ public class MainTwo {
 
         // Determine cost of movement
 
-        double northCost = 0;
-        double southCost = 0;
-        double eastCost = 0;
-        double westCost = 0;
+        double northCost = 999999;
+        double southCost = 999999;
+        double eastCost = 999999;
+        double westCost = 999999;
         int[] northCell = {currentLocation[0] - 1, currentLocation[1]};
         int[] southCell = {currentLocation[0] + 1, currentLocation[1]};
         int[] eastCell = {currentLocation[0], currentLocation[1]+1};
@@ -647,7 +647,7 @@ public class MainTwo {
         System.out.println("South Cell: " + Arrays.toString(southCell));
         System.out.println("East Cell: " + Arrays.toString(eastCell));
         System.out.println("West Cell: " + Arrays.toString(westCell));
-        System.out.println("");
+        System.out.println();
         System.out.println("North Cost: " + northCost);
         System.out.println("South Cost: " + southCost);
         System.out.println("East Cost: " + eastCost);
@@ -656,6 +656,21 @@ public class MainTwo {
         double minValue1 = Math.min(northCost, southCost);
         double minValue2 = Math.min(eastCost, westCost);
         double minValue = Math.min(minValue1, minValue2);
+
+        String lowestF = null;
+        if (northCost == minValue && northCost > 0){
+            lowestF = "north";
+        }
+        else if (southCost == minValue && southCost > 0){
+            lowestF = "south";
+        }
+        else if (eastCost == minValue && eastCost > 0){
+            lowestF = "east";
+        }
+        else if (westCost == minValue && westCost > 0){
+            lowestF = "west";
+        }
+        System.out.println("Lowest F: " + lowestF);
 
 
     }
