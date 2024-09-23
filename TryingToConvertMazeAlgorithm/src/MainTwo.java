@@ -11,7 +11,7 @@ public class MainTwo {
     private static boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
-    private static final int MAX_CELL_SIZE = 100; // Maximum cell size
+    private static final int MAX_CELL_SIZE = 500; // Maximum cell size
     private static int xCord = 100;  // Number of rows
     private static int yCord = 100;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
@@ -32,7 +32,7 @@ public class MainTwo {
     public static long start;
     public static boolean overlayToggle = false;
     public static boolean analogSolverMode = false;
-    public static JFrame mainFrame;
+
 
 
     public static void main(String[] args) {
@@ -112,7 +112,7 @@ public class MainTwo {
         JButton start = new JButton("Start");
         start.setBounds(30, 30, 100, 30);
         start.addActionListener(_ -> {
-            startAlgorithm(analogSolverModeCheckbox);
+            startAlgorithm(analogSolverModeCheckbox, mainFrame);
             mainFrame.requestFocusInWindow();
         });
         start.setBackground(Color.GREEN);
@@ -211,7 +211,7 @@ public class MainTwo {
                         toggleCameraCentering();
                         break;
                     case KeyEvent.VK_SPACE:
-                        startAlgorithm(analogSolverModeCheckbox);
+                        startAlgorithm(analogSolverModeCheckbox, mainFrame);
                         break;
 
                 }
@@ -258,8 +258,9 @@ public class MainTwo {
                     currentLocation[0]--;
                 }
             }
-            if (analogSolverMode && currentLocation[0] == xCord && currentLocation[1] == yCord){
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
                 JOptionPane.showMessageDialog(mainFrame, "You did it :)");
+
             }
         }
     }
@@ -279,7 +280,7 @@ public class MainTwo {
                     currentLocation[0]++;
                 }
             }
-            if (analogSolverMode && currentLocation[0] == xCord && currentLocation[1] == yCord){
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
                 JOptionPane.showMessageDialog(mainFrame, "You did it :)");
             }
         }
@@ -300,7 +301,7 @@ public class MainTwo {
                     currentLocation[1]--;
                 }
             }
-            if (analogSolverMode && currentLocation[0] == xCord && currentLocation[1] == yCord){
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
                 JOptionPane.showMessageDialog(mainFrame, "You did it :)");
             }
         }
@@ -321,7 +322,7 @@ public class MainTwo {
                     currentLocation[1]++;
                 }
             }
-            if (analogSolverMode && currentLocation[0] == xCord && currentLocation[1] == yCord){
+            if (analogSolverMode && currentLocation[0] == xCord-1 && currentLocation[1] == yCord-1){
                 JOptionPane.showMessageDialog(mainFrame, "You did it :)");
             }
         }
@@ -370,13 +371,13 @@ public class MainTwo {
     }
 
     // Main Algorithm
-    public static void startAlgorithm(JCheckBox analogSolverModeCheckbox) {
+    public static void startAlgorithm(JCheckBox analogSolverModeCheckbox, JFrame mainFrame) {
         //check nearby cells if they exist and have not been visited
         algorithmStatus = !algorithmStatus;
         analogSolverMode = false;
         analogSolverModeCheckbox.setSelected(false);
 
-        Thread algorithmThread = new Thread(MainTwo::algorithm);
+        Thread algorithmThread = new Thread(() -> algorithm(mainFrame));
         algorithmThread.start(); // Start the thread
         start = System.currentTimeMillis();
         Thread timer = new Thread(MainTwo::timerThread);
@@ -398,7 +399,7 @@ public class MainTwo {
         }
     }
 
-    public static void algorithm() {
+    public static void algorithm(JFrame mainFrame) {
         while (algorithmStatus) {
             if (liveUpdate) {
                 SwingUtilities.invokeLater(gridPanel::repaint);
@@ -459,16 +460,16 @@ public class MainTwo {
                 backTrackStatus = false;
                 switch (directionToMove) {
                     case "NORTH":
-                        moveNorth();
+                        moveNorth(mainFrame);
                         break;
                     case "SOUTH":
-                        moveSouth();
+                        moveSouth(mainFrame);
                         break;
                     case "WEST":
-                        moveWest();
+                        moveWest(mainFrame);
                         break;
                     case "EAST":
-                        moveEast();
+                        moveEast(mainFrame);
                         break;
                 }
             }
