@@ -13,8 +13,8 @@ public class MainTwo {
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 500; // Maximum cell size
-    private static int xCord = 100;  // Number of rows
-    private static int yCord = 100;  // Number of columns
+    private static int xCord = 10;  // Number of rows
+    private static int yCord = 10;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
     // Do not change
@@ -41,7 +41,7 @@ public class MainTwo {
     public static HashMap<String,Boolean> closedCells = new HashMap<>();
     public static int[] startCell = {0, 0};
     public static int[] endCell = new int[2];
-    public static int[] lastIntersection = null;
+    public static ArrayList<int[]> lastIntersection = new ArrayList<>();
 
 
 
@@ -585,126 +585,115 @@ public class MainTwo {
     }
 
     public static void aStarAlgorithm(JFrame mainFrame) {
-        double northCost = 999999;
-        double southCost = 999999;
-        double eastCost = 999999;
-        double westCost = 999999;
-        int[] northCell = {currentLocation[0] - 1, currentLocation[1]};
-        int[] southCell = {currentLocation[0] + 1, currentLocation[1]};
-        int[] eastCell = {currentLocation[0], currentLocation[1]+1};
-        int[] westCell = {currentLocation[0], currentLocation[1]-1};
-        if (currentLocation != endCell) {
+        while (true) {
+            double northCost = 999999;
+            double southCost = 999999;
+            double eastCost = 999999;
+            double westCost = 999999;
+            int[] northCell = {currentLocation[0] - 1, currentLocation[1]};
+            int[] southCell = {currentLocation[0] + 1, currentLocation[1]};
+            int[] eastCell = {currentLocation[0], currentLocation[1] + 1};
+            int[] westCell = {currentLocation[0], currentLocation[1] - 1};
+            if (currentLocation == endCell) {
+                System.out.println("Maze Complete");
+            } else {
 
-            //Find possible moves
-
-
-            ArrayList<String> possibleAStarMoves = new ArrayList();
-            if (currentLocation[1] < yCord - 1) {
-                if (!verticalWalls[currentLocation[0]][currentLocation[1]]) {
-                    possibleAStarMoves.add("EAST");
+                //Find possible open moves
+                ArrayList<String> possibleAStarMoves = new ArrayList();
+                if (currentLocation[1] < yCord - 1) {
+                    if (!verticalWalls[currentLocation[0]][currentLocation[1]]) {
+                        possibleAStarMoves.add("EAST");
+                    }
                 }
-            }
-            if (currentLocation[1] > 0) {
-                if (!verticalWalls[currentLocation[0]][currentLocation[1] - 1]) {
-                    possibleAStarMoves.add("WEST");
+                if (currentLocation[1] > 0) {
+                    if (!verticalWalls[currentLocation[0]][currentLocation[1] - 1]) {
+                        possibleAStarMoves.add("WEST");
+                    }
                 }
-            }
-            if (currentLocation[0] < xCord - 1) {
-                if (!horizontalWalls[currentLocation[0]][currentLocation[1]]) {
-                    possibleAStarMoves.add("SOUTH");
+                if (currentLocation[0] < xCord - 1) {
+                    if (!horizontalWalls[currentLocation[0]][currentLocation[1]]) {
+                        possibleAStarMoves.add("SOUTH");
+                    }
                 }
-            }
-            if (currentLocation[0] > 0) {
-                if (!horizontalWalls[currentLocation[0] - 1][currentLocation[1]]) {
-                    possibleAStarMoves.add("NORTH");
+                if (currentLocation[0] > 0) {
+                    if (!horizontalWalls[currentLocation[0] - 1][currentLocation[1]]) {
+                        possibleAStarMoves.add("NORTH");
+                    }
                 }
-            }
-            System.out.println(possibleAStarMoves);
-            if (possibleAStarMoves.size() > 2) {
-                lastIntersection = Arrays.copyOf(currentLocation, currentLocation.length);
-            }
-            System.out.println(Arrays.toString(lastIntersection));
-            System.out.println("possible Locations: " + possibleAStarMoves);
-
-            // Determine cost of movement
-
-
-            for (String direction : possibleAStarMoves) {
-                switch (direction) {
-                    case "NORTH":
-                        if (openCells.get(northCell[0] + "." + northCell[1])) {
-                            northCost = Math.sqrt(Math.pow(endCell[0] - northCell[0], 2) + Math.pow(endCell[1] - northCell[1], 2));
-                        }
-                        break;
-                    case "SOUTH":
-                        if (openCells.get(southCell[0] + "." + southCell[1])) {
-                            southCost = Math.sqrt(Math.pow(endCell[0] - southCell[0], 2) + Math.pow(endCell[1] - southCell[1], 2));
-                        }
-                        break;
-                    case "EAST":
-                        if (openCells.get(eastCell[0] + "." + eastCell[1])) {
-                            eastCost = Math.sqrt(Math.pow(endCell[0] - eastCell[0], 2) + Math.pow(endCell[1] - eastCell[1], 2));
-                        }
-                        break;
-                    case "WEST":
-                        if (openCells.get(westCell[0] + "." + westCell[1])) {
-                            westCost = Math.sqrt(Math.pow(endCell[0] - westCell[0], 2) + Math.pow(endCell[1] - westCell[1], 2));
-                        }
-                        break;
+                System.out.println(possibleAStarMoves);
+                if (possibleAStarMoves.size() > 2) {
+                    lastIntersection.add(Arrays.copyOf(currentLocation, currentLocation.length));
                 }
-            }
-            System.out.println("Current Cell: " + Arrays.toString(currentLocation));
-            System.out.println("North Cell: " + Arrays.toString(northCell));
-            System.out.println("South Cell: " + Arrays.toString(southCell));
-            System.out.println("East Cell: " + Arrays.toString(eastCell));
-            System.out.println("West Cell: " + Arrays.toString(westCell));
-            System.out.println();
-            System.out.println("North Cost: " + northCost);
-            System.out.println("South Cost: " + southCost);
-            System.out.println("East Cost: " + eastCost);
-            System.out.println("West Cost: " + westCost);
+                System.out.println(lastIntersection);
+                System.out.println("possible Locations: " + possibleAStarMoves);
 
-            double minValue1 = Math.min(northCost, southCost);
-            double minValue2 = Math.min(eastCost, westCost);
-            double minValue = Math.min(minValue1, minValue2);
+                // Determine cost of movement
 
-            String lowestF = null;
-            if (northCost == minValue) {
-                lowestF = "NORTH";
-            } else if (southCost == minValue) {
-                lowestF = "SOUTH";
-            } else if (eastCost == minValue) {
-                lowestF = "EAST";
-            } else if (westCost == minValue) {
-                lowestF = "WEST";
-            }
-            System.out.println("Lowest F: " + lowestF);
 
-            //Add lowestF to closedList
-            if (lowestF == ("NORTH")) {
-                openCells.put(northCell[0] + "." + northCell[1], false);
-                moveNorth(mainFrame);
-                mainFrame.repaint();
-            } else if (lowestF == ("SOUTH")) {
-                openCells.put(southCell[0] + "." + southCell[1], false);
-                moveSouth(mainFrame);
-                mainFrame.repaint();
-            } else if (lowestF == ("EAST")) {
-                openCells.put(eastCell[0] + "." + eastCell[1], false);
-                moveEast(mainFrame);
-                mainFrame.repaint();
-            } else if (lowestF == ("WEST")) {
-                openCells.put(westCell[0] + "." + westCell[1], false);
-                moveWest(mainFrame);
-                mainFrame.repaint();
+                for (String direction : possibleAStarMoves) {
+                    switch (direction) {
+                        case "NORTH":
+                            if (openCells.get(northCell[0] + "." + northCell[1])) {
+                                northCost = Math.sqrt(Math.pow(endCell[0] - northCell[0], 2) + Math.pow(endCell[1] - northCell[1], 2));
+                            }
+                            break;
+                        case "SOUTH":
+                            if (openCells.get(southCell[0] + "." + southCell[1])) {
+                                southCost = Math.sqrt(Math.pow(endCell[0] - southCell[0], 2) + Math.pow(endCell[1] - southCell[1], 2));
+                            }
+                            break;
+                        case "EAST":
+                            if (openCells.get(eastCell[0] + "." + eastCell[1])) {
+                                eastCost = Math.sqrt(Math.pow(endCell[0] - eastCell[0], 2) + Math.pow(endCell[1] - eastCell[1], 2));
+                            }
+                            break;
+                        case "WEST":
+                            if (openCells.get(westCell[0] + "." + westCell[1])) {
+                                westCost = Math.sqrt(Math.pow(endCell[0] - westCell[0], 2) + Math.pow(endCell[1] - westCell[1], 2));
+                            }
+                            break;
+                    }
+                }
+
+                double minValue1 = Math.min(northCost, southCost);
+                double minValue2 = Math.min(eastCost, westCost);
+                double minValue = Math.min(minValue1, minValue2);
+
+                String lowestF = null;
+                if (northCost == minValue && northCost < 999999) {
+                    lowestF = "NORTH";
+                } else if (southCost == minValue && southCost < 999999) {
+                    lowestF = "SOUTH";
+                } else if (eastCost == minValue && eastCost < 999999) {
+                    lowestF = "EAST";
+                } else if (westCost == minValue && westCost < 999999) {
+                    lowestF = "WEST";
+                }
+                System.out.println("Lowest F: " + lowestF);
+
+                //Add lowestF to closedList
+                if (lowestF == ("NORTH")) {
+                    openCells.put(northCell[0] + "." + northCell[1], false);
+                    moveNorth(mainFrame);
+                    mainFrame.repaint();
+                } else if (lowestF == ("SOUTH")) {
+                    openCells.put(southCell[0] + "." + southCell[1], false);
+                    moveSouth(mainFrame);
+                    mainFrame.repaint();
+                } else if (lowestF == ("EAST")) {
+                    openCells.put(eastCell[0] + "." + eastCell[1], false);
+                    moveEast(mainFrame);
+                    mainFrame.repaint();
+                } else if (lowestF == ("WEST")) {
+                    openCells.put(westCell[0] + "." + westCell[1], false);
+                    moveWest(mainFrame);
+                    mainFrame.repaint();
+                } else {
+                    //Go back to the closest intersection
+                    int[] goToLastIntersection = lastIntersection.getLast();
+                    currentLocation = Arrays.copyOf(goToLastIntersection, goToLastIntersection.length);
+                }
             }
         }
-        else{
-            System.out.println("Maze Solved");
-        }
-
-
-
-
     }
 }
