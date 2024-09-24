@@ -591,7 +591,7 @@ public class MainTwo {
             int[] southCell = {currentLocation[0] + 1, currentLocation[1]};
             int[] eastCell = {currentLocation[0], currentLocation[1] + 1};
             int[] westCell = {currentLocation[0], currentLocation[1] - 1};
-            if (currentLocation == endCell) {
+            if (currentLocation[0] == endCell[0] && currentLocation[1] == endCell[1]) {
                 System.out.println("Maze Complete");
             } else {
 
@@ -690,6 +690,8 @@ public class MainTwo {
                     int[] goToLastIntersection = lastIntersections.getLast();
                     currentLocation = Arrays.copyOf(goToLastIntersection, goToLastIntersection.length);
                     lastIntersections.removeLast();
+                    System.out.println("Last intersection: " + Arrays.toString(goToLastIntersection));
+                    System.out.println("All intersections: " + lastIntersections.toString());
                 }
             //}
         }
