@@ -43,6 +43,8 @@ public class MainTwo {
     public static int[] startCell = {0, 0};
     public static int[] endCell = new int[2];
     public static ArrayList<int[]> lastIntersections = new ArrayList<>();
+    public static boolean aStarToggle = false;
+    public static int[] goToLastIntersection = new int[2];
 
 
 
@@ -549,9 +551,21 @@ public class MainTwo {
                         if (screenX + CELL_SIZE > 0 && screenY + CELL_SIZE > 0 &&
                                 screenX < getWidth() && screenY < getHeight()) {
 
-                            // Draw the cell background
-                            g2d.setColor(Color.GRAY);
-                            g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                            // Convert coordinates to "X.Y" format to use as key for openCells
+                            String cellKey = i + "." + j;
+
+                            // Determine if this cell has been moved to (i.e., it's "false" in openCells)
+                            boolean hasMovedToCell = !openCells.getOrDefault(cellKey, true);
+
+                            // Color moved-to cells in orange
+                            if (hasMovedToCell) {
+                                g2d.setColor(Color.RED);
+                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                            } else {
+                                // Draw the cell background
+                                g2d.setColor(Color.GRAY);
+                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                            }
 
                             // Draw the player
                             if (i == currentLocation[0] && j == currentLocation[1]) {
@@ -579,6 +593,7 @@ public class MainTwo {
         }
     }
     public static void aStarAlgorithmStart(JFrame mainFrame){
+        aStarToggle = !aStarToggle;
         Thread startAStar = new Thread(() -> {
             try {
                 aStarAlgorithm(mainFrame);
@@ -589,7 +604,7 @@ public class MainTwo {
         startAStar.start(); // Start the thread
     }
     public static void aStarAlgorithm(JFrame mainFrame) throws InterruptedException {
-        while (true) {
+        while (aStarToggle) {
             double northCost = 999999;
             double southCost = 999999;
             double eastCost = 999999;
@@ -600,6 +615,7 @@ public class MainTwo {
             int[] westCell = {currentLocation[0], currentLocation[1] - 1};
             if (currentLocation[0] == endCell[0] && currentLocation[1] == endCell[1]) {
                 System.out.println("Maze Complete");
+                aStarToggle = false;
             } else {
 
                 //Find possible open moves
@@ -628,8 +644,42 @@ public class MainTwo {
                 if (possibleAStarMoves.size() > 2) {
                     lastIntersections.add(Arrays.copyOf(currentLocation, currentLocation.length));
                 }
-                System.out.println(lastIntersections.toString());
-                System.out.println("possible Locations: " + possibleAStarMoves);
+
+
+                // Check things
+
+                if (goToLastIntersection[0] == currentLocation[0] && currentLocation[1] == goToLastIntersection[1]) {
+                    boolean northCellStatus;
+                    try {
+                        northCellStatus = openCells.get(northCell[0] + "." + northCell[1]);
+                    } catch (Exception e) {
+                        northCellStatus = false;
+                    }
+                    boolean eastCellStatus;
+                    try {
+                        eastCellStatus = openCells.get(eastCell[0]+"."+eastCell[1]);
+                    } catch (Exception e) {
+                        eastCellStatus = false;
+                    }
+                    boolean westCellStatus;
+                    try {
+                        westCellStatus = openCells.get(westCell[0]+"."+westCell[1]);
+                    } catch (Exception e) {
+                        westCellStatus = false;
+                    }
+                    boolean southCellStatus;
+                    try {
+                        southCellStatus = openCells.get(southCell[0]+"."+southCell[1]);
+                    } catch (Exception e) {
+                        southCellStatus = false;
+                    }
+                    if (!northCellStatus && !eastCellStatus && !westCellStatus && !southCellStatus) {
+                        lastIntersections.removeLast();
+                        goToLastIntersection = lastIntersections.getLast();
+                        currentLocation = goToLastIntersection;
+                    }
+                }
+
 
                 // Determine cost of movement
 
@@ -673,8 +723,6 @@ public class MainTwo {
                 } else if (westCost == minValue && westCost < 999999) {
                     lowestF = "WEST";
                 }
-                System.out.println("Lowest F: " + lowestF);
-
                 //Add lowestF to closedList
                 if (lowestF == ("NORTH")) {
                     openCells.put(northCell[0] + "." + northCell[1], false);
@@ -694,20 +742,18 @@ public class MainTwo {
                     mainFrame.repaint();
                 } else {
                     //Go back to the closest intersection
-                    int[] goToLastIntersection = lastIntersections.getLast();
+                    goToLastIntersection = lastIntersections.getLast();
                     currentLocation = Arrays.copyOf(goToLastIntersection, goToLastIntersection.length);
                     mainFrame.repaint();
                     lastIntersections.removeLast();
 
-                    System.out.println("Last intersection: " + Arrays.toString(goToLastIntersection));
-                    System.out.println("All intersections: ");
-                    for (int[] key: lastIntersections){
-                        System.out.println(Arrays.toString(key));
-                    }
                 }
+                //Add to correct path list
+                
+
             }
             try{
-                Thread.sleep(500);
+                Thread.sleep(1);
             }catch(InterruptedException e){}
         }
     }
