@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
+import java.lang.Thread;
 
 
 public class MainTwo {
@@ -578,11 +579,17 @@ public class MainTwo {
         }
     }
     public static void aStarAlgorithmStart(JFrame mainFrame){
-        Thread startAStar = new Thread(() -> aStarAlgorithm(mainFrame));
+        Thread startAStar = new Thread(() -> {
+            try {
+                aStarAlgorithm(mainFrame);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
         startAStar.start(); // Start the thread
     }
-    public static void aStarAlgorithm(JFrame mainFrame) {
-        //while (true) {
+    public static void aStarAlgorithm(JFrame mainFrame) throws InterruptedException {
+        while (true) {
             double northCost = 999999;
             double southCost = 999999;
             double eastCost = 999999;
@@ -689,11 +696,19 @@ public class MainTwo {
                     //Go back to the closest intersection
                     int[] goToLastIntersection = lastIntersections.getLast();
                     currentLocation = Arrays.copyOf(goToLastIntersection, goToLastIntersection.length);
+                    mainFrame.repaint();
                     lastIntersections.removeLast();
+
                     System.out.println("Last intersection: " + Arrays.toString(goToLastIntersection));
-                    System.out.println("All intersections: " + lastIntersections.toString());
+                    System.out.println("All intersections: ");
+                    for (int[] key: lastIntersections){
+                        System.out.println(Arrays.toString(key));
+                    }
                 }
-            //}
+            }
+            try{
+                Thread.sleep(500);
+            }catch(InterruptedException e){}
         }
     }
 }
