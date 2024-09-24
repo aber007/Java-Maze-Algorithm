@@ -41,7 +41,7 @@ public class MainTwo {
     public static HashMap<String,Boolean> closedCells = new HashMap<>();
     public static int[] startCell = {0, 0};
     public static int[] endCell = new int[2];
-    public static ArrayList<int[]> lastIntersection = new ArrayList<>();
+    public static ArrayList<int[]> lastIntersections = new ArrayList<>();
 
 
 
@@ -147,7 +147,7 @@ public class MainTwo {
         aStarAlgorithmButton.setBackground(Color.GREEN);
         aStarAlgorithmButton.setBounds(30, 390, 100, 30);
         aStarAlgorithmButton.addActionListener(e -> {
-            aStarAlgorithm(mainFrame);
+            aStarAlgorithmStart(mainFrame);
             mainFrame.requestFocusInWindow();
         });
         overlayBg.add(aStarAlgorithmButton);
@@ -519,12 +519,6 @@ public class MainTwo {
         }
     }
 
-
-    public static void toggleOverlay(JPanel overlayBg) {
-        overlayToggle = !overlayToggle;
-        System.out.println("Overlay " + (overlayToggle ? "ON" : "OFF"));
-        overlayBg.setVisible(overlayToggle);
-    }
     // Custom JPanel to render the grid
     static class GridPanel extends JPanel {
         @Override
@@ -583,9 +577,12 @@ public class MainTwo {
             }
         }
     }
-
+    public static void aStarAlgorithmStart(JFrame mainFrame){
+        Thread startAStar = new Thread(() -> aStarAlgorithm(mainFrame));
+        startAStar.start(); // Start the thread
+    }
     public static void aStarAlgorithm(JFrame mainFrame) {
-        while (true) {
+        //while (true) {
             double northCost = 999999;
             double southCost = 999999;
             double eastCost = 999999;
@@ -622,9 +619,9 @@ public class MainTwo {
                 }
                 System.out.println(possibleAStarMoves);
                 if (possibleAStarMoves.size() > 2) {
-                    lastIntersection.add(Arrays.copyOf(currentLocation, currentLocation.length));
+                    lastIntersections.add(Arrays.copyOf(currentLocation, currentLocation.length));
                 }
-                System.out.println(lastIntersection);
+                System.out.println(lastIntersections.toString());
                 System.out.println("possible Locations: " + possibleAStarMoves);
 
                 // Determine cost of movement
@@ -690,10 +687,11 @@ public class MainTwo {
                     mainFrame.repaint();
                 } else {
                     //Go back to the closest intersection
-                    int[] goToLastIntersection = lastIntersection.getLast();
+                    int[] goToLastIntersection = lastIntersections.getLast();
                     currentLocation = Arrays.copyOf(goToLastIntersection, goToLastIntersection.length);
+                    lastIntersections.removeLast();
                 }
-            }
+            //}
         }
     }
 }
