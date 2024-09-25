@@ -45,6 +45,7 @@ public class MainTwo {
     public static ArrayList<int[]> lastIntersections = new ArrayList<>();
     public static boolean aStarToggle = false;
     public static int[] goToLastIntersection = new int[2];
+    public static ArrayList<int[]> correctPath = new ArrayList<>();
 
 
 
@@ -557,11 +558,14 @@ public class MainTwo {
                             // Determine if this cell has been moved to (i.e., it's "false" in openCells)
                             boolean hasMovedToCell = !openCells.getOrDefault(cellKey, true);
 
+
                             // Color moved-to cells in orange
+
                             if (hasMovedToCell) {
-                                g2d.setColor(Color.RED);
+                                g2d.setColor(Color.ORANGE);
                                 g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
-                            } else {
+                            }
+                            else {
                                 // Draw the cell background
                                 g2d.setColor(Color.GRAY);
                                 g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
@@ -747,13 +751,21 @@ public class MainTwo {
                     mainFrame.repaint();
                     lastIntersections.removeLast();
 
+                    // remove all bad places from correct path
+                    int removeCorrectPathTo = correctPath.indexOf(goToLastIntersection);
+                    int correctPathLength = correctPath.size();
+                    System.out.println(removeCorrectPathTo);
+                    System.out.println(correctPathLength);
+
+
                 }
                 //Add to correct path list
+                correctPath.add(Arrays.copyOf(currentLocation, currentLocation.length));
                 
 
             }
             try{
-                Thread.sleep(0);
+                Thread.sleep(10);
             }catch(InterruptedException e){}
         }
     }
