@@ -647,32 +647,32 @@ public class MainTwo {
 
 
                 // Check things
+                boolean northCellStatus = false;
+                boolean eastCellStatus = false;
+                boolean westCellStatus = false;
+                boolean southCellStatus = false;
 
                 if (goToLastIntersection[0] == currentLocation[0] && currentLocation[1] == goToLastIntersection[1]) {
-                    boolean northCellStatus;
                     try {
-                        northCellStatus = openCells.get(northCell[0] + "." + northCell[1]);
-                    } catch (Exception e) {
-                        northCellStatus = false;
-                    }
-                    boolean eastCellStatus;
+                        if (possibleAStarMoves.contains("NORTH")) {
+                            northCellStatus = openCells.get(northCell[0] + "." + northCell[1]);
+                        }
+                    } catch (Exception _) {}
                     try {
-                        eastCellStatus = openCells.get(eastCell[0]+"."+eastCell[1]);
-                    } catch (Exception e) {
-                        eastCellStatus = false;
-                    }
-                    boolean westCellStatus;
+                        if (possibleAStarMoves.contains("EAST")) {
+                            eastCellStatus = openCells.get(eastCell[0]+"."+eastCell[1]);
+                        }
+                    } catch (Exception _) {}
                     try {
-                        westCellStatus = openCells.get(westCell[0]+"."+westCell[1]);
-                    } catch (Exception e) {
-                        westCellStatus = false;
-                    }
-                    boolean southCellStatus;
+                        if (possibleAStarMoves.contains("WEST")) {
+                            westCellStatus = openCells.get(westCell[0]+"."+westCell[1]);
+                        }
+                    } catch (Exception _) {}
                     try {
-                        southCellStatus = openCells.get(southCell[0]+"."+southCell[1]);
-                    } catch (Exception e) {
-                        southCellStatus = false;
-                    }
+                        if (possibleAStarMoves.contains("SOUTH")) {
+                            southCellStatus = openCells.get(southCell[0]+"."+southCell[1]);
+                        }
+                    } catch (Exception _) {}
                     if (!northCellStatus && !eastCellStatus && !westCellStatus && !southCellStatus) {
                         lastIntersections.removeLast();
                         goToLastIntersection = lastIntersections.getLast();
@@ -753,7 +753,7 @@ public class MainTwo {
 
             }
             try{
-                Thread.sleep(1);
+                Thread.sleep(0);
             }catch(InterruptedException e){}
         }
     }
