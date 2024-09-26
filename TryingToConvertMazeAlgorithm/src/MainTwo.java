@@ -559,11 +559,15 @@ public class MainTwo {
 
                             // Determine if this cell has been moved to (i.e., it's "false" in openCells)
                             boolean hasMovedToCell = !openCells.get(cellKey);
-
+                            boolean inCorrectWay = correctPath.contains(cellKey);
 
                             // Color moved-to cells in orange
 
-                            if (hasMovedToCell) {
+                            if (inCorrectWay){
+                                g2d.setColor(Color.GREEN);
+                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                            }
+                            else if (hasMovedToCell) {
                                 g2d.setColor(Color.ORANGE);
                                 g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
                             }
@@ -610,6 +614,8 @@ public class MainTwo {
         startAStar.start(); // Start the thread
     }
     public static void aStarAlgorithm(JFrame mainFrame) throws InterruptedException {
+        correctPath.add("0.0");
+
         while (aStarToggle) {
             double northCost = 999999;
             double southCost = 999999;
@@ -619,6 +625,7 @@ public class MainTwo {
             int[] southCell = {currentLocation[0] + 1, currentLocation[1]};
             int[] eastCell = {currentLocation[0], currentLocation[1] + 1};
             int[] westCell = {currentLocation[0], currentLocation[1] - 1};
+
             if (currentLocation[0] == endCell[0] && currentLocation[1] == endCell[1]) {
                 System.out.println("Maze Complete");
                 aStarToggle = false;
@@ -756,8 +763,8 @@ public class MainTwo {
                     // remove all bad places from correct path
                     int removeCorrectPathTo = correctPath.indexOf(goToLastIntersection[0] + "." + goToLastIntersection[1]);
                     int correctPathLength = correctPath.size();
-
-
+                    correctPath.subList(removeCorrectPathTo, correctPathLength).clear();
+                    System.out.println(correctPath);
 
                 }
                 //Add to correct path list
@@ -766,13 +773,8 @@ public class MainTwo {
 
             }
             try{
-                Thread.sleep(1);
+                Thread.sleep(0);
             }catch(InterruptedException e){}
-        }
-    }
-    public class rmRange extends ArrayList<String>{
-        public static void main(String[] args){
-            
         }
     }
 }
