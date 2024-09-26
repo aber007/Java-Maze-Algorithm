@@ -8,6 +8,7 @@ import java.util.Random;
 import java.lang.Thread;
 
 
+
 public class MainTwo {
     //User inputs
     private static boolean liveUpdate = true; // If the maze should update in real time
@@ -45,7 +46,7 @@ public class MainTwo {
     public static ArrayList<int[]> lastIntersections = new ArrayList<>();
     public static boolean aStarToggle = false;
     public static int[] goToLastIntersection = new int[2];
-    public static ArrayList<int[]> correctPath = new ArrayList<>();
+    public static ArrayList<String> correctPath = new ArrayList<>();
 
 
 
@@ -284,6 +285,7 @@ public class MainTwo {
         currentLocation[1] = 0;
         openCells.clear();
         closedCells.clear();
+        correctPath.clear();
         main(null);
 
 
@@ -556,7 +558,7 @@ public class MainTwo {
                             String cellKey = i + "." + j;
 
                             // Determine if this cell has been moved to (i.e., it's "false" in openCells)
-                            boolean hasMovedToCell = !openCells.getOrDefault(cellKey, true);
+                            boolean hasMovedToCell = !openCells.get(cellKey);
 
 
                             // Color moved-to cells in orange
@@ -752,21 +754,25 @@ public class MainTwo {
                     lastIntersections.removeLast();
 
                     // remove all bad places from correct path
-                    int removeCorrectPathTo = correctPath.indexOf(goToLastIntersection);
+                    int removeCorrectPathTo = correctPath.indexOf(goToLastIntersection[0] + "." + goToLastIntersection[1]);
                     int correctPathLength = correctPath.size();
-                    System.out.println(removeCorrectPathTo);
-                    System.out.println(correctPathLength);
+
 
 
                 }
                 //Add to correct path list
-                correctPath.add(Arrays.copyOf(currentLocation, currentLocation.length));
-                
+                String correctPathString = currentLocation[0] + "." + currentLocation[1];
+                correctPath.add(correctPathString);
 
             }
             try{
-                Thread.sleep(10);
+                Thread.sleep(1);
             }catch(InterruptedException e){}
+        }
+    }
+    public class rmRange extends ArrayList<String>{
+        public static void main(String[] args){
+            
         }
     }
 }
