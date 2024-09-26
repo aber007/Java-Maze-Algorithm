@@ -26,7 +26,7 @@ public class MainTwo {
     private static int cameraY = 0;  // Camera Y offset
     private static final int cameraSpeed = 10;  // Speed of camera movement
     private static boolean centerCameraOnPlayer = false;  // Toggles camera centering
-    private static final HashMap<String, Boolean> locationsToAvoid = new HashMap<>();
+    private static final HashMap<String, Boolean> locationsToAvoid = new HashMap<>(xCord*yCord);
     private static ArrayList<String> backTrack = new ArrayList<>();
     private static final ArrayList<String> possibleMoves = new ArrayList<>();
     private static boolean algorithmStatus = false;
@@ -39,8 +39,7 @@ public class MainTwo {
 
 
     //A star algorithm
-    public static HashMap<String,Boolean> openCells = new HashMap<>();
-    public static HashMap<String,Boolean> closedCells = new HashMap<>();
+    public static HashMap<String,Boolean> openCells = new HashMap<>(xCord*yCord);
     public static int[] startCell = {0, 0};
     public static int[] endCell = new int[2];
     public static ArrayList<int[]> lastIntersections = new ArrayList<>();
@@ -284,7 +283,6 @@ public class MainTwo {
         currentLocation[0] = 0;
         currentLocation[1] = 0;
         openCells.clear();
-        closedCells.clear();
         correctPath.clear();
         main(null);
 
@@ -529,8 +527,7 @@ public class MainTwo {
     static class GridPanel extends JPanel {
         @Override
         protected void paintComponent(Graphics g) {
-            boolean visualize = true;
-            if (visualize) {
+            if (liveUpdate) {
 
                 super.paintComponent(g);
                 Graphics2D g2d = (Graphics2D) g;
@@ -629,6 +626,8 @@ public class MainTwo {
             if (currentLocation[0] == endCell[0] && currentLocation[1] == endCell[1]) {
                 System.out.println("Maze Complete");
                 aStarToggle = false;
+                liveUpdate = true;
+                mainFrame.repaint();
             } else {
 
                 //Find possible open moves
