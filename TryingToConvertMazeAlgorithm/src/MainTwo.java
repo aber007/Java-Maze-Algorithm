@@ -19,6 +19,7 @@ public class MainTwo {
     private static int yCord = 10;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
 
+
     // Do not change
     private static boolean[][] horizontalWalls; // Tracks horizontal walls
     private static boolean[][] verticalWalls;   // Tracks vertical walls
@@ -35,6 +36,9 @@ public class MainTwo {
     public static long start;
     public static boolean overlayToggle = false;
     public static boolean analogSolverMode = false;
+    public static HashMap<String, Boolean> correctPathMap = new HashMap<>();
+    public static boolean showCorrectPathMap = false;
+
 
 
 
@@ -46,6 +50,7 @@ public class MainTwo {
     public static boolean aStarToggle = false;
     public static int[] goToLastIntersection = new int[2];
     public static ArrayList<String> correctPath = new ArrayList<>();
+    public static boolean completedSolve = false;
 
 
 
@@ -284,6 +289,8 @@ public class MainTwo {
         currentLocation[1] = 0;
         openCells.clear();
         correctPath.clear();
+        completedSolve = false;
+        showCorrectPathMap = false;
         main(null);
 
 
@@ -491,6 +498,7 @@ public class MainTwo {
                     System.out.println("Time taken: " + time + " ms / " + time / 1000 + " seconds");
                     algorithmStatus = false;
                     gridPanel.repaint();
+                    Thread.currentThread().interrupt();
                 }
                 backTrackStatus = true;
                 // Trigger backtrack here
@@ -557,28 +565,43 @@ public class MainTwo {
                             // Determine if this cell has been moved to (i.e., it's "false" in openCells)
                             boolean hasMovedToCell = !openCells.get(cellKey);
                             boolean inCorrectWay = correctPath.contains(cellKey);
+                            if (completedSolve){
+                                if (inCorrectWay){
+                                    g2d.setColor(Color.GREEN);
+                                    g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                                    correctPathMap.put(i+"."+j, Boolean.TRUE);
+                                }
+                                if (i*j == (xCord-1) * (yCord-1)) {
+                                    completedSolve = false;
+                                    showCorrectPathMap = true;
+                                }
+                            }
 
                             // Color moved-to cells in orange
 
-                            if (inCorrectWay){
-                                g2d.setColor(Color.GREEN);
-                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
-                            }
-                            else if (hasMovedToCell) {
-                                g2d.setColor(Color.ORANGE);
-                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
-                            }
-                            else {
-                                // Draw the cell background
-                                g2d.setColor(Color.GRAY);
-                                g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
-                            }
+                            try {
+                                if (showCorrectPathMap && correctPathMap.get(i+"."+j)) {
+                                    g2d.setColor(Color.GREEN);
+                                    g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                                }
+                                else if (hasMovedToCell) {
+                                    g2d.setColor(Color.ORANGE);
+                                    g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                                }
+                                else {
+                                    // Draw the cell background
+                                    g2d.setColor(Color.GRAY);
+                                    g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                                }
+                            } catch (Exception e) {}
 
                             // Draw the player
                             if (i == currentLocation[0] && j == currentLocation[1]) {
                                 g2d.setColor(Color.BLUE);
                                 g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
                             }
+
+
 
                             // Draw walls
                             g2d.setColor(Color.BLACK);
@@ -624,10 +647,12 @@ public class MainTwo {
             int[] westCell = {currentLocation[0], currentLocation[1] - 1};
 
             if (currentLocation[0] == endCell[0] && currentLocation[1] == endCell[1]) {
-                System.out.println("Maze Complete");
+                System.out.println("Solving Complete");
+                completedSolve = true;
                 aStarToggle = false;
                 liveUpdate = true;
                 mainFrame.repaint();
+                Thread.currentThread().interrupt();
             } else {
 
                 //Find possible open moves
@@ -652,7 +677,6 @@ public class MainTwo {
                         possibleAStarMoves.add("NORTH");
                     }
                 }
-                System.out.println(possibleAStarMoves);
                 if (possibleAStarMoves.size() > 2) {
                     lastIntersections.add(Arrays.copyOf(currentLocation, currentLocation.length));
                 }
@@ -763,8 +787,6 @@ public class MainTwo {
                     int removeCorrectPathTo = correctPath.indexOf(goToLastIntersection[0] + "." + goToLastIntersection[1]);
                     int correctPathLength = correctPath.size();
                     correctPath.subList(removeCorrectPathTo, correctPathLength).clear();
-                    System.out.println(correctPath);
-
                 }
                 //Add to correct path list
                 String correctPathString = currentLocation[0] + "." + currentLocation[1];
