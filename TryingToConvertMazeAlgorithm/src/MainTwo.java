@@ -18,6 +18,7 @@ public class MainTwo {
     private static int xCord = 10;  // Number of rows
     private static int yCord = 10;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
+    private static int sleeptime = 0;
 
 
     // Do not change
@@ -38,9 +39,6 @@ public class MainTwo {
     public static boolean analogSolverMode = false;
     public static HashMap<String, Boolean> correctPathMap = new HashMap<>();
     public static boolean showCorrectPathMap = false;
-
-
-
 
     //A star algorithm
     public static HashMap<String,Boolean> openCells = new HashMap<>(xCord*yCord);
@@ -143,7 +141,7 @@ public class MainTwo {
         start.setBackground(Color.GREEN);
         overlayBg.add(start);
 
-        JButton reset = new JButton("Reset (WIP)");
+        JButton reset = new JButton("Reset");
         reset.setBounds(30, 70, 100, 30);
         reset.addActionListener(e -> {
             resetApp(mainFrame);
@@ -593,7 +591,17 @@ public class MainTwo {
                                     g2d.setColor(Color.GRAY);
                                     g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
                                 }
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                                if (hasMovedToCell) {
+                                    g2d.setColor(Color.ORANGE);
+                                    g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                                }
+                                else {
+                                    // Draw the cell background
+                                    g2d.setColor(Color.GRAY);
+                                    g2d.fillRect(screenX, screenY, CELL_SIZE, CELL_SIZE);
+                                }
+                            }
 
                             // Draw the player
                             if (i == currentLocation[0] && j == currentLocation[1]) {
@@ -794,7 +802,7 @@ public class MainTwo {
 
             }
             try{
-                Thread.sleep(0);
+                Thread.sleep(sleeptime);
             }catch(InterruptedException e){}
         }
     }
