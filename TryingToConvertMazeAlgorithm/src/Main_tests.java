@@ -1,13 +1,10 @@
-import java.util.*;
-import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
+import javax.swing.*;
 
-public class Main {
+public class Main_tests {
     private static final boolean debug = false;
     public static String[] possibleDirections = new String[4];
     public static boolean algorithmStatus = false;
