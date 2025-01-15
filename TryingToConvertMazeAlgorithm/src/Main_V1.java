@@ -9,7 +9,7 @@ import java.lang.Thread;
 
 
 
-public class MainTwo {
+public class Main_V1{
     //User inputs
     private static boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
@@ -432,7 +432,7 @@ public class MainTwo {
         Thread algorithmThread = new Thread(() -> algorithm(mainFrame));
         algorithmThread.start(); // Start the thread
         start = System.currentTimeMillis();
-        Thread timer = new Thread(MainTwo::timerThread);
+        Thread timer = new Thread(Main_V1::timerThread);
         timer.start();
     }
     public static void timerThread() {
