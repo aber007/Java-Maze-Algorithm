@@ -9,14 +9,14 @@ import java.lang.Thread;
 
 
 
-public class MainTwo {
+public class Main_new {
     //User inputs
     private static boolean liveUpdate = true; // If the maze should update in real time
     private static int CELL_SIZE = 30; // Initial size of each grid cell
     private static final int MIN_CELL_SIZE = 1; // Minimum cell size
     private static final int MAX_CELL_SIZE = 500; // Maximum cell size
-    private static int xCord = 10;  // Number of rows
-    private static int yCord = 10;  // Number of columns
+    private static int xCord = 100;  // Number of rows
+    private static int yCord = 100;  // Number of columns
     private static int[] currentLocation = {0, 0}; // Player's starting location
     private static int sleeptime = 0;
 
@@ -432,7 +432,7 @@ public class MainTwo {
         Thread algorithmThread = new Thread(() -> algorithm(mainFrame));
         algorithmThread.start(); // Start the thread
         start = System.currentTimeMillis();
-        Thread timer = new Thread(MainTwo::timerThread);
+        Thread timer = new Thread(Main_new::timerThread);
         timer.start();
     }
     public static void timerThread() {
@@ -527,6 +527,10 @@ public class MainTwo {
                 }
             }
         }
+    }
+
+    public static HashMap<String, Boolean> getLocationsToAvoid() {
+        return locationsToAvoid;
     }
 
     // Custom JPanel to render the grid
